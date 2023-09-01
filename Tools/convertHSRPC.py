@@ -69,6 +69,10 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                 arr = action.name.split("_")
                 shapekey_name = "_".join(arr[2:])
 
+                if not bpy.data.actions:
+                    print("No Animations Found.")
+                    break
+
                 # apply animation
                 if root is not None and action is not None:
                     root.animation_data.action = action
@@ -84,8 +88,16 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                 reset_pose(root)
 
         def clear_animation_data():
-            bpy.context.object.animation_data_clear()
-            
+            obj = bpy.context.object
+            if obj is not None:
+                # Remove all animation data
+                obj.animation_data_clear()
+
+                # Remove all animations
+                for action in bpy.data.actions:
+                    if action.users == 0:
+                        bpy.data.actions.remove(action)
+
         def ClearRotations():
             for ob in bpy.context.scene.objects:
                 if ob.type =='ARMATURE':
@@ -249,8 +261,8 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                     ob.select_set(False)
             
         def Run():
-            ScaleModel()
-            RemoveEmpties()
+            ScaleModel() 
+            RemoveEmpties() 
             GenerateShapeKeys()
             clear_animation_data()
             ClearRotations()
@@ -262,6 +274,7 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             FixModelBoneView()
             FixVRCLite()
             FixEyes()
+            ApplyTransforms()
 
         Run()
         

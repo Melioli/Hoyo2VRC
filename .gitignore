@@ -1,2 +1,3 @@
 *.meta
 *.pyc
+Tools/__pycache__/convertHSRPC.cpython-310.pyc
