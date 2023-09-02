@@ -80,7 +80,8 @@ The models will have to come from the game files. as their naming scheme are imp
 > 1. Click on the `Import Model` button.
 > 2. Navigate to the folder where you downloaded the model and select the `FBX` file that matches the naming scheme shown above.
 > 3. Click on the `Better FBX Import` button.
-> 4. Once it's imported in the scene select the armature object in the Outliner. ![icon](https://melioli.moe/od1s3.png)
+> 4. Once it's imported in the scene select the armature object in the Outliner. ![icon](https://github.com/Melioli/Hoyo2VRC/assets/31974197/f7773a92-b168-4d34-9513-22306a7f2838)
+
 > 5. If the correct models are imported it'll show an additonal button that can either be Convert HSR Avatar ![icon](https://melioli.moe/6c11r.png) , Convert GI Avatar ![Icon](https://melioli.moe/rcct8.png) or Convert HI3 Avatar ![Icon](https://melioli.moe/nalpx.png). Otherwise it'll say Convert NPC. ![icon](https://melioli.moe/bnu3i.png)
 > 6. Click on the button that matches the model you imported.
 > 7. Once it's done, you can export the model by clicking on the `Export Model` button.
