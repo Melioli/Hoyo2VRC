@@ -81,13 +81,11 @@ The models will have to come from the game files. as their naming scheme are imp
 > 2. Navigate to the folder where you downloaded the model and select the `FBX` file that matches the naming scheme shown above.
 > 3. Click on the `Better FBX Import` button.
 > 4. Once it's imported in the scene select the armature object in the Outliner. ![icon](https://github.com/Melioli/Hoyo2VRC/assets/31974197/f7773a92-b168-4d34-9513-22306a7f2838)
-
-> 5. If the correct models are imported it'll show an additonal button that can either be Convert HSR Avatar ![hsr](https://github.com/Melioli/Hoyo2VRC/assets/31974197/13f7d791-c5e2-479d-b8de-eedce3be0e5d) , Convert GI Avatar ![GI](https://github.com/Melioli/Hoyo2VRC/assets/31974197/18701bd5-cad0-4b11-b126-b6c9a680c258)
- or Convert HI3 Avatar ![hi3](https://github.com/Melioli/Hoyo2VRC/assets/31974197/ff2c6e95-a54d-4d79-8aa5-6bc827f16b57)
- . Otherwise it'll say Convert NPC. ![npc](https://github.com/Melioli/Hoyo2VRC/assets/31974197/6c77ae80-2c98-4856-a001-77b028498a6c)
-
-> 6. Click on the button that matches the model you imported.
-> 7. Once it's done, you can export the model by clicking on the `Export Model` button.
+>
+> 5. If the correct models are imported it'll show an additonal button that can either be Convert HSR Avatar ![hsr](https://github.com/Melioli/Hoyo2VRC/assets/31974197/13f7d791-c5e2-479d-b8de-eedce3be0e5d), Convert GI Avatar ![GI](https://github.com/Melioli/Hoyo2VRC/assets/31974197/18701bd5-cad0-4b11-b126-b6c9a680c258) or Convert HI3 Avatar ![hi3](https://github.com/Melioli/Hoyo2VRC/assets/31974197/ff2c6e95-a54d-4d79-8aa5-6bc827f16b57). Otherwise it'll say Convert NPC. ![npc](https://github.com/Melioli/Hoyo2VRC/assets/31974197/6c77ae80-2c98-4856-a001-77b028498a6c)
+>
+> 7. Click on the button that matches the model you imported.
+> 8. Once it's done, you can export the model by clicking on the `Export Model` button.
 
 ## Contact
 - [Discord server](https://discord.gg/meliverse)
