@@ -25,7 +25,7 @@
 > - Playable Characters from Genshin Impact, Honkai Impact and Honkai Star Rail
 > - NPC/Monsters from Genshin Impact, Honkai Impact and Honkai Star Rail
 
-> The models will have to come from the game files. as their naming scheme are important for the addon to work properly. The naming schemes are as follows:
+The models will have to come from the game files. as their naming scheme are important for the addon to work properly. The naming schemes are as follows:
 
 | Genshin Impact | Honkai Impact | Honkai Star Rail |
 | :-----: | :--: | :--------------------: | 
