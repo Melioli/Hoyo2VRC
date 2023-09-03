@@ -18,7 +18,7 @@
 
 ## Important Information
 > [!WARNING]
-> * This Addon is made for Blender 3.3.0 and above. It may not work with older versions of Blender.
+> * This Addon is made for Blender 3.3.0 and will work on newer versions till 3.5 for now. It may not work with older versions of Blender.
 > * This Addon is only for Hoyoverse datamined assets. MMD or other sources will not work properly with this Addon. However, we do not condone datamining and encourage users to respect the intellectual property rights of the original creators.
 > * The Addon comes with a custom BetterFBX and CATS fork. If you have either of these addons installed, please disable them before using Hoyo2VRC.
 > Only the following models are supported:
