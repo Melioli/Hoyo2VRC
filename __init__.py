@@ -15,8 +15,8 @@ from Hoyo2VRC.Tools.convertNPC import ConvertNonePlayerCharacter
 bl_info = {
     "name": "Hoyo2VRC",
     "author": "Meliodas, Mken",
-    "version": (1, 0, 2),
-    "blender": (3, 3, 0),
+    "version": (1, 0, 6),
+    "blender": (3, 6, 2),
     "location": "3D View > Sidebar > Hoyo2VRC",
     "description": "Convert Hoyoverse rips to VRC",
     "warning": "Requires CATS and BetterFBX. Please run the Install Dependencies Button",
