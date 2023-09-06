@@ -10,7 +10,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
 
     def execute(self, context):
         #Loli Boy Girl Male Lady
-
+        blender_version = bpy.app.version
         Basetype = bpy.context.active_object.name
 
 
@@ -112,7 +112,11 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             if "Eye_R_End" in armature.edit_bones:
                 attacheyes('Eye_R_End', 'Head')
                 move_eyebone(armature.edit_bones["Eye_R_End"])
-                bpy.ops.transform.translate(value=(0, 0.035, 0), orient_axis_ortho='X', orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=True, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=True, use_snap_edit=True, use_snap_nonedit=True, use_snap_selectable=False)
+                if blender_version >= (3, 6, 2):
+                    bpy.ops.transform.translate(value=(0, 0.035, 0), orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=True, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=True, use_snap_edit=True, use_snap_nonedit=True, use_snap_selectable=False)
+                else: # 3.3.0 - 3.6.1
+                    bpy.ops.transform.translate(value=(0, 0.035, 0), orient_axis_ortho='X', orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=True, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=True, use_snap_edit=True, use_snap_nonedit=True, use_snap_selectable=False)
+
                 bpy.ops.armature.select_all(action='DESELECT')
             else:
                 print("Eye_R_End not found. Probably using an OldFace Model")
@@ -120,7 +124,11 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             if "Eye_L_End" in armature.edit_bones:
                 attacheyes('Eye_L_End', 'Head')
                 move_eyebone(armature.edit_bones["Eye_L_End"])
-                bpy.ops.transform.translate(value=(0, 0.035, 0), orient_axis_ortho='X', orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=True, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=True, use_snap_edit=True, use_snap_nonedit=True, use_snap_selectable=False)
+                if blender_version >= (3, 6, 2):
+                    bpy.ops.transform.translate(value=(0, 0.035, 0), orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=True, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=True, use_snap_edit=True, use_snap_nonedit=True, use_snap_selectable=False)
+                else: # 3.3.0 - 3.6.1
+                    bpy.ops.transform.translate(value=(0, 0.035, 0), orient_axis_ortho='X', orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=True, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=True, use_snap_edit=True, use_snap_nonedit=True, use_snap_selectable=False)
+                    
                 bpy.ops.armature.select_all(action='DESELECT')
             else:
                 print("Eye_L_End not found. Probably using an OldFace Model")

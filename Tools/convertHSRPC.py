@@ -12,6 +12,7 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
     bl_label = 'OperatorLabel'
 
     def execute(self, context):
+        blender_version = bpy.app.version
         
         def ScaleModel():
             for ob in bpy.context.scene.objects:
