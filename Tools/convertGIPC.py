@@ -48,6 +48,7 @@ class ConvertGenshinPlayerCharacter(Operator):
             
         def FixModelBoneView():
             bpy.context.scene.combine_mats = False
+            bpy.context.scene.join_meshes = False
             bpy.ops.cats_armature.fix()
             bpy.context.object.display_type = 'WIRE'
 
