@@ -69,7 +69,7 @@ The models will have to come from the game files. as their naming scheme are imp
 > 1. Open Blender and go to `Edit > Preferences > Add-ons`.
 > 2. Click on the `Install` button at the top right of the window.
 > 3. Navigate to the folder where you downloaded the addon and select the `Hoyo2VRC.zip` file.
-> 4. Click on the `Install Add-on` button at the top right of the window.
+> 4. Click on the `Install Add-on` button at the bottom right of the window.
 > 5. Enable the addon by clicking on the checkbox next to it.
 
 ## Usage
