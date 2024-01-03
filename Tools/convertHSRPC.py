@@ -7,23 +7,44 @@ import os
 
 
 class ConvertHonkaiStarRailPlayerCharacter(Operator):
-    '''Convert Model'''
-    bl_idname = 'hoyo2vrc.converthsrpc'
-    bl_label = 'OperatorLabel'
+    """Convert Model"""
+
+    bl_idname = "hoyo2vrc.converthsrpc"
+    bl_label = "OperatorLabel"
 
     def execute(self, context):
         blender_version = bpy.app.version
-        
+
         def ScaleModel():
             for ob in bpy.context.scene.objects:
-                if ob.type in ['ARMATURE']:
+                if ob.type in ["ARMATURE"]:
                     ob.select_set(True)
-                    bpy.ops.transform.resize(value=(100, 100, 100), orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=False, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=True, use_snap_edit=False, use_snap_nonedit=False, use_snap_selectable=False)
+                    bpy.ops.transform.resize(
+                        value=(100, 100, 100),
+                        orient_type="GLOBAL",
+                        orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+                        orient_matrix_type="GLOBAL",
+                        constraint_axis=(True, True, True),
+                        mirror=False,
+                        use_proportional_edit=False,
+                        proportional_edit_falloff="SMOOTH",
+                        proportional_size=1,
+                        use_proportional_connected=False,
+                        use_proportional_projected=False,
+                        snap=False,
+                        snap_elements={"INCREMENT"},
+                        use_snap_project=False,
+                        snap_target="CLOSEST",
+                        use_snap_self=True,
+                        use_snap_edit=False,
+                        use_snap_nonedit=False,
+                        use_snap_selectable=False,
+                    )
                     ob.select_set(False)
 
         def RemoveEmpties():
             for ob in bpy.context.scene.objects:
-                if ob.type == 'EMPTY':
+                if ob.type == "EMPTY":
                     ob.select_set(True)
                     Empties = ob
                     bpy.data.objects.remove(Empties, do_unlink=True)
@@ -40,20 +61,25 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             def reset_pose(root_object):
                 bpy.context.view_layer.objects.active = root_object
                 bpy.ops.object.posemode_toggle()
-                bpy.ops.pose.select_all(action='SELECT')
+                bpy.ops.pose.select_all(action="SELECT")
                 bpy.ops.pose.transforms_clear()
                 bpy.ops.object.posemode_toggle()
 
             root = bpy.context.active_object
             face_obj = bpy.data.objects["Face"]
 
-            if "Avatar" not in root.name and "Player" not in root.name and "Art" not in root.name and "NPC_Avatar" not in root.name:
+            if (
+                "Avatar" not in root.name
+                and "Player" not in root.name
+                and "Art" not in root.name
+                and "NPC_Avatar" not in root.name
+            ):
                 raise BaseException("Valid object is not selected.")
 
             if face_obj is None:
                 raise BaseException("Not found the Face object.")
 
-            bpy.ops.object.mode_set(mode='OBJECT')
+            bpy.ops.object.mode_set(mode="OBJECT")
             reset_pose(root)
 
             # add basis shape
@@ -66,7 +92,7 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                 if ".00" in action.name or "Emo_" not in action.name:
                     continue
 
-                print(action.name)    
+                print(action.name)
                 arr = action.name.split("_")
                 shapekey_name = "_".join(arr[2:])
 
@@ -78,13 +104,15 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                 if root is not None and action is not None:
                     root.animation_data.action = action
                     bpy.ops.object.visual_transform_apply()
-                
+
                 # convert shapekay
                 bpy.context.view_layer.objects.active = face_obj
-                bpy.ops.object.modifier_apply_as_shapekey(keep_modifier=True, modifier=face_obj.modifiers[0].name)
+                bpy.ops.object.modifier_apply_as_shapekey(
+                    keep_modifier=True, modifier=face_obj.modifiers[0].name
+                )
                 shapekey = get_shapekey(face_obj.name, face_obj.modifiers[0].name)
                 shapekey.name = shapekey_name
-                
+
                 # reset transform
                 reset_pose(root)
 
@@ -101,16 +129,16 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
 
         def ClearRotations():
             for ob in bpy.context.scene.objects:
-                if ob.type =='ARMATURE':
-                    ob.select_set(True) 
+                if ob.type == "ARMATURE":
+                    ob.select_set(True)
                     ob.rotation_euler = [0, 0, 0]
                     ob.select_set(False)
 
         def CleanMeshes():
             for obj in bpy.data.objects:
-                if obj.type == 'MESH' and obj.name in ['EffectMesh', 'EyeStar']:
+                if obj.type == "MESH" and obj.name in ["EffectMesh", "EyeStar"]:
                     bpy.data.objects.remove(obj, do_unlink=True)
-        
+
         def FaceMask():
             maskObj = bpy.context.scene.objects["Face_Mask"]
             maskObj.vertex_groups.new(name="Head")
@@ -118,22 +146,24 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                 vertList = []
                 vertList.append(vertex.index)
                 try:
-                    headGroup = maskObj.vertex_groups['Head']
-                    headGroup.add(vertList, 1.0, 'REPLACE')
+                    headGroup = maskObj.vertex_groups["Head"]
+                    headGroup.add(vertList, 1.0, "REPLACE")
                 except:
                     continue
 
         def MergeMeshes():
             # Get all the meshes in the scene
-            meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
+            meshes = [obj for obj in bpy.context.scene.objects if obj.type == "MESH"]
 
             # Select all the meshes except Face_Mask and Weapon
             for mesh in meshes:
-                if mesh.name not in ['Weapon']:
+                if mesh.name not in ["Weapon"]:
                     mesh.select_set(True)
 
             # Set the active object to the first selected mesh
-            bpy.context.view_layer.objects.active = [obj for obj in meshes if obj.select_get()][0]
+            bpy.context.view_layer.objects.active = [
+                obj for obj in meshes if obj.select_get()
+            ][0]
 
             # Join the selected meshes
             bpy.ops.object.join()
@@ -143,17 +173,47 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                 bpy.context.active_object.name = "Body"
 
             # Deselect all the meshes
-            bpy.ops.object.select_all(action='DESELECT')
+            bpy.ops.object.select_all(action="DESELECT")
 
         def RenameBones():
             # Define the bone names and new names
-            bone_names = ["Root_M", "Hip_L", "Hip_R", "HipPart1_R", "HipPart1_L", "Spine1_M", "Spine2_M", "Chest_M", "Shoulder_L", "Shoulder_R", "Scapula_R", "Scapula_L", "Neck_M", "Head_M"]
-            new_names = ["Hips", "Left leg", "Right leg", "Right leg twist R", "Left leg twist L", "Spine", "Chest", "Upper chest", "Left arm", "Right arm", "Right shoulder", "Left shoulder", "Neck", "Head"]
-            
+            bone_names = [
+                "Root_M",
+                "Hip_L",
+                "Hip_R",
+                "HipPart1_R",
+                "HipPart1_L",
+                "Spine1_M",
+                "Spine2_M",
+                "Chest_M",
+                "Shoulder_L",
+                "Shoulder_R",
+                "Scapula_R",
+                "Scapula_L",
+                "Neck_M",
+                "Head_M",
+            ]
+            new_names = [
+                "Hips",
+                "Left leg",
+                "Right leg",
+                "Right leg twist R",
+                "Left leg twist L",
+                "Spine",
+                "Chest",
+                "Upper chest",
+                "Left arm",
+                "Right arm",
+                "Right shoulder",
+                "Left shoulder",
+                "Neck",
+                "Head",
+            ]
+
             # Get the armature object
             armature = None
             for obj in bpy.context.scene.objects:
-                if obj.type == 'ARMATURE':
+                if obj.type == "ARMATURE":
                     armature = obj
                     break
 
@@ -162,7 +222,7 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                 for bone in armature.pose.bones:
                     if bone.name in bone_names:
                         bone.name = new_names[bone_names.index(bone.name)]
-                    
+
         def CleanBones():
             # Define the bone names to remove
             bone_names = ["Skin_GRP", "Main"]
@@ -170,15 +230,15 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             # Get the armature object
             armature = None
             for obj in bpy.context.scene.objects:
-                if obj.type == 'ARMATURE':
+                if obj.type == "ARMATURE":
                     armature = obj
                     break
-            
+
             # Set the active object in the context
             bpy.context.view_layer.objects.active = armature
 
             # Switch to edit mode
-            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.object.mode_set(mode="EDIT")
 
             # Remove the bones
             if armature is not None:
@@ -187,55 +247,57 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                         armature.data.edit_bones.remove(bone)
 
             # Switch back to pose mode
-            bpy.ops.object.mode_set(mode='OBJECT')
+            bpy.ops.object.mode_set(mode="OBJECT")
 
         def FixModelBoneView():
-            
             bpy.context.scene.combine_mats = False
             bpy.context.scene.remove_zero_weight = False
             bpy.context.scene.remove_rigidbodies_joints = False
             bpy.context.scene.join_meshes = False
             bpy.ops.cats_armature.fix()
-            #The problem lies with toggling join meshes it being on works good, but off breaks the weights of the eyes
-            bpy.context.object.display_type = 'WIRE'
-                    
+            # The problem lies with toggling join meshes it being on works good, but off breaks the weights of the eyes
+            bpy.context.object.display_type = "WIRE"
+
         def FixVRCLite():
-            ob = bpy.data.objects['Armature']
+            ob = bpy.data.objects["Armature"]
             armature = ob.data
-            bpy.data.objects['Armature'].select_set(True)
-            bpy.context.view_layer.objects.active = bpy.data.objects['Armature']
-            bpy.ops.object.mode_set(mode='EDIT')
-            bpy.ops.armature.select_all(action='DESELECT')
+            bpy.data.objects["Armature"].select_set(True)
+            bpy.context.view_layer.objects.active = bpy.data.objects["Armature"]
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.ops.armature.select_all(action="DESELECT")
+
             def attachfeets(foot, toe):
                 armature.edit_bones[foot].tail.x = armature.edit_bones[toe].head.x
                 armature.edit_bones[foot].tail.y = armature.edit_bones[toe].head.y
                 armature.edit_bones[foot].tail.z = armature.edit_bones[toe].head.z
-            
-            attachfeets('Spine', 'Chest')
-            attachfeets('Hips', 'Spine')
-            bpy.ops.object.mode_set(mode='OBJECT')
-            
+
+            attachfeets("Spine", "Chest")
+            attachfeets("Hips", "Spine")
+            bpy.ops.object.mode_set(mode="OBJECT")
+
         def FixEyes():
-            ob = bpy.data.objects['Armature']
+            ob = bpy.data.objects["Armature"]
             armature = ob.data
-            bpy.data.objects['Armature'].select_set(True)
-            bpy.context.view_layer.objects.active = bpy.data.objects['Armature']
-            bpy.ops.object.mode_set(mode='EDIT')
-            bpy.ops.armature.select_all(action='DESELECT')
+            bpy.data.objects["Armature"].select_set(True)
+            bpy.context.view_layer.objects.active = bpy.data.objects["Armature"]
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.ops.armature.select_all(action="DESELECT")
+
             def attacheyes(foot, toe):
-                armature.edit_bones[foot].tail.z = armature.edit_bones[toe].head.z - armature.edit_bones[foot].tail.y
+                armature.edit_bones[foot].tail.z = (
+                    armature.edit_bones[toe].head.z - armature.edit_bones[foot].tail.y
+                )
                 armature.edit_bones[foot].tail.y = armature.edit_bones[toe].head.y
                 armature.edit_bones[foot].tail.x = armature.edit_bones[toe].head.x
 
-            attacheyes('Eye_L', 'Eye_All_L')
-            attacheyes('Eye_R', 'Eye_All_R')
-
+            attacheyes("Eye_L", "Eye_All_L")
+            attacheyes("Eye_R", "Eye_All_R")
 
             # Get the armature object and enter edit mode
-            armature_obj = bpy.data.objects['Armature']
+            armature_obj = bpy.data.objects["Armature"]
             armature_obj.select_set(True)
             bpy.context.view_layer.objects.active = armature_obj
-            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.object.mode_set(mode="EDIT")
 
             # Get the Eye_L and Eye_R bones
             eye_l_bone = armature_obj.data.edit_bones.get("Eye_L")
@@ -252,18 +314,20 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                 face_bone.parent = head_bone
 
             # Exit edit mode
-            bpy.ops.object.mode_set(mode='OBJECT')
+            bpy.ops.object.mode_set(mode="OBJECT")
 
         def ApplyTransforms():
             for ob in bpy.context.scene.objects:
-                if ob.type in ['MESH', 'ARMATURE']:
+                if ob.type in ["MESH", "ARMATURE"]:
                     ob.select_set(True)
-                    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+                    bpy.ops.object.transform_apply(
+                        location=True, rotation=True, scale=True
+                    )
                     ob.select_set(False)
-            
+
         def Run():
-            ScaleModel() 
-            RemoveEmpties() 
+            ScaleModel()
+            RemoveEmpties()
             GenerateShapeKeys()
             clear_animation_data()
             ClearRotations()
@@ -278,6 +342,5 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             ApplyTransforms()
 
         Run()
-        
-        return {'FINISHED'}
 
+        return {"FINISHED"}
