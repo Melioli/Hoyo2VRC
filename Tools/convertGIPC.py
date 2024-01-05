@@ -1,5 +1,6 @@
 import bpy
 from bpy.types import Operator
+import bmesh
 import os
 
 
@@ -45,7 +46,7 @@ class ConvertGenshinPlayerCharacter(Operator):
             for obj in bpy.data.objects:
                 if obj.type == 'MESH' and obj.name in ['EffectMesh', 'EyeStar']:
                     bpy.data.objects.remove(obj, do_unlink=True)
-            
+                    
         def FixModelBoneView():
             bpy.context.scene.combine_mats = False
             bpy.context.scene.join_meshes = False
@@ -162,6 +163,80 @@ class ConvertGenshinPlayerCharacter(Operator):
                     ob.select_set(True)
                     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
                     ob.select_set(False)
+ 
+        def MergeFaceByDistance():
+            # Get the "Face" mesh
+            face_obj = bpy.data.objects.get("Face")
+            if face_obj is None:
+                print("Face mesh not found")
+                return
+
+            # Deselect all objects
+            bpy.ops.object.select_all(action='DESELECT')
+
+            # Select the meshes to merge
+            meshes_to_merge = ["Face_Eye", "Brow"]
+            for obj_name in meshes_to_merge:
+                obj = bpy.data.objects.get(obj_name)
+                if obj is not None:
+                    obj.select_set(True)
+                else:
+                    print(f"Object {obj_name} not found")
+
+            # Also select "Face" because it's the mesh we want to join into
+            face_obj.select_set(True)
+
+            # Set the active object to "Face"
+            bpy.context.view_layer.objects.active = face_obj
+
+            # Join the selected objects into the active object
+            bpy.ops.object.join()
+
+            # Ensure we're in object mode
+            bpy.ops.object.mode_set(mode='OBJECT')
+            
+            # Select the "Face" mesh
+            bpy.ops.object.select_all(action='DESELECT')
+            face_obj.select_set(True)
+
+            # Set the active object to "Face"
+            bpy.context.view_layer.objects.active = face_obj
+
+            # Switch to edit mode
+            bpy.ops.object.mode_set(mode='EDIT')
+
+            # Select all vertices
+            bpy.ops.mesh.select_all(action='SELECT')
+
+            # Merge vertices by distance
+            bpy.ops.mesh.remove_doubles()
+
+            # Switch back to object mode
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+        def RequestMeshMerge():
+            if bpy.context.scene.merge_all_meshes:
+                # User checked "Merge All Meshes", so merge all meshes
+
+                # Deselect all objects
+                bpy.ops.object.select_all(action='DESELECT')
+
+                # Select all mesh objects
+                for obj in bpy.data.objects:
+                    if obj.type == 'MESH':
+                        obj.select_set(True)
+
+                # Set the active object to "Body"
+                bpy.context.view_layer.objects.active = bpy.data.objects["Body"]
+
+                # Join the selected objects into the active object
+                bpy.ops.object.join()
+
+                # Rename the active object to "Body"
+                bpy.context.active_object.name = "Body"
+            else:
+                # User unchecked "Merge All Meshes", so do nothing
+                pass
             
         def Run():
             ScaleModel()
@@ -172,8 +247,10 @@ class ConvertGenshinPlayerCharacter(Operator):
             GenShapekey()
             FixEyes()
             FixSpine()
+            MergeFaceByDistance()
             ApplyTransforms()
-
+            RequestMeshMerge()
+            
         Run()
         
         return {'FINISHED'}
