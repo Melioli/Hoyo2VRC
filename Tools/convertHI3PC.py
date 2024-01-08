@@ -295,6 +295,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             RenameBones()
             MergeFaceByDistance()
             RequestMeshMerge()
+            ScaleModel()
             ApplyTransforms()
 
         Run()

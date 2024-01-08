@@ -361,6 +361,7 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             FixVRCLite()
             FixEyes()
             RequestMeshMerge()
+            ScaleModel()
             ApplyTransforms()
 
         Run()
