@@ -49,6 +49,8 @@ class Hoyo2VRCModelPanel(Panel):
 
         # Add a box section for the model
         box = layout.box()
+        box.label(text="Model Conversions", icon='MESH_DATA')
+        
 
         # Add a row for importing the model
         row = box.row()
@@ -65,40 +67,35 @@ class Hoyo2VRCModelPanel(Panel):
                 icon='EXPORT'
             )
             # Add a row for converting the avatar
-            row = box.row()
-            split = row.split(factor=0.8)  # Adjust the factor to change the width of the main button
-            
+            row = box.row()       
             name = bpy.context.object.name.replace(".001", "").replace("_Render", "").replace("_merge", "").replace(" (merge)", "")
             if re.match(r"^(Cs_Avatar|Avatar|NPC_Avatar)_(Boy|Girl|Lady|Male|Loli)_(Sword|Claymore|Bow|Catalyst|Pole)_[a-zA-Z]+(?<!_\d{2})$", name):
                 # Genshin Impact Playable character
-                split.operator(
+                row.operator(
                     operator='hoyo2vrc.convertgpc',
                     text='Convert GI Avatar',
                     icon='PLAY'
                 )
             elif re.match(r"^(Avatar|Art|NPC_Avatar)_(Boy|Girl|Lady|Male|Kid|Lad|Maid|Miss|[a-zA-Z]+)?_?[a-zA-Z]*_(?<!_\d{2})\d{2}$", name):
                 # Honkai Star Rail Playable Character
-                split.operator(
+                row.operator(
                     operator='hoyo2vrc.converthsrpc',
                     text='Convert HSR Avatar',
                     icon='PLAY'
                 )
             elif re.match(r"^Avatar_\w+?_C\d+(_\w+)$", name):
                 # Honkai Impact Playable Character
-                split.operator(
+                row.operator(
                     operator='hoyo2vrc.converthi3pc',
                     text='Convert HI3 Avatar',
                     icon='PLAY'
                 )
             else :
-                split.operator(
+                row.operator(
                     operator='hoyo2vrc.convertnpc',
                     text='Convert NPC',
                     icon='PLAY'
                 )
-                
-            # Add the toggle menu button to the right of the convert button
-            split.operator(Hoyo2VRCToggleMenuButton.bl_idname, text="", icon='SETTINGS')
 
 class Hoyo2VRCToggleMenu(bpy.types.Menu):
     bl_idname = "HOYO2VRC_MT_toggle_menu"
@@ -130,9 +127,14 @@ class Hoyo2VRCSettingsPanel(Panel):
 
         # Add a box section for the settings
         box = layout.box()
-
-        # Add a row for installing dependencies
+        box.label(text="Toggles", icon='TOOL_SETTINGS')
+        
+        # Add a row for the "Merge All Meshes" option
         row = box.row()
+        row.prop(context.scene, "merge_all_meshes")
+
+        # Add a separator for better visual organization
+        box.separator()
         
 
 classes = [
