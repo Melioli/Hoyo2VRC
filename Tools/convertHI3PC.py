@@ -203,7 +203,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             bpy.ops.object.select_all(action='DESELECT')
 
             # Select the meshes to merge
-            meshes_to_merge = ["Face_Eye", "Brow"]
+            meshes_to_merge = ["EyeShape", "Eyebrow"]
             for obj_name in meshes_to_merge:
                 obj = bpy.data.objects.get(obj_name)
                 if obj is not None:
@@ -280,6 +280,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             FixEyes()
             FixSpine()
             RenameBones()
+            MergeFaceByDistance()
             RequestMeshMerge()
             ApplyTransforms()
 

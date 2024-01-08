@@ -154,7 +154,7 @@ def register():
     bpy.types.Scene.merge_all_meshes = bpy.props.BoolProperty(
         name="Merge All Meshes",
         description="Decide whether all meshes should be merged or not",
-        default = False
+        default = True
     )
 
     for cls in classes:
