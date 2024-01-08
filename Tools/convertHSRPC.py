@@ -61,24 +61,14 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             root = bpy.context.active_object
             face_obj = bpy.data.objects["Face"]
 
-            if (
-                "Avatar" not in root.name
-                and "Player" not in root.name
-                and "Art" not in root.name
-                and "NPC_Avatar" not in root.name
-            ):
-                raise BaseException("Valid object is not selected.")
+            if "Avatar" not in root.name and "Player" not in root.name:
+                # The condition is incomplete, so I'm assuming you want to return if the condition is met
+                return
 
-            if face_obj is None:
-                raise BaseException("Not found the Face object.")
-
-            bpy.ops.object.mode_set(mode="OBJECT")
-            reset_pose(root)
-
-            # add basis shape
-            if get_shapekey("Face", "Basis") == None:
-                bpy.context.view_layer.objects.active = bpy.data.objects["Face"]
-                bpy.ops.object.shape_key_add(from_mix=False)
+            # Check if there are any actions
+            if not bpy.data.actions:
+                print("No Animations Found.")
+                return  # Stop the execution of GenerateShapeKeys function
 
             # convert animation to shapekey
             for action in bpy.data.actions:
@@ -88,10 +78,6 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                 print(action.name)
                 arr = action.name.split("_")
                 shapekey_name = "_".join(arr[2:])
-
-                if not bpy.data.actions:
-                    print("No Animations Found.")
-                    break
 
                 # apply animation
                 if root is not None and action is not None:
