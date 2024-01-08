@@ -252,8 +252,8 @@ class ConvertGenshinPlayerCharacter(Operator):
             FixEyes()
             FixSpine()
             MergeFaceByDistance()
-            ApplyTransforms()
             RequestMeshMerge()
+            ApplyTransforms()
             
         Run()
         
