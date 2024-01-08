@@ -63,3 +63,6 @@ class CheckAndInstallDependencies:
 
 # Create an instance of the CheckAndInstallDependencies class
 check_and_install_dependencies = CheckAndInstallDependencies()
+
+# Register the instance as a handler for the load_post event
+bpy.app.handlers.load_post.append(check_and_install_dependencies)
