@@ -36,7 +36,7 @@ class ConvertGenshinPlayerCharacter(Operator):
                         bpy.ops.transform.resize(value=(0.1, 0.1, 0.1))
                     elif 1 < dimensions.z < 3:
                         pass  # Do nothing
-                    elif dimensions.z < 0:
+                    elif dimensions.z < 1:
                         bpy.ops.transform.resize(value=(100, 100, 100))
 
                     ob.select_set(False)
