@@ -222,12 +222,16 @@ class ConvertGenshinPlayerCharacter(Operator):
                 bpy.ops.object.select_all(action='DESELECT')
 
                 # Select all mesh objects
-                for obj in bpy.data.objects:
-                    if obj.type == 'MESH':
-                        obj.select_set(True)
+                mesh_objects = [obj for obj in bpy.data.objects if obj.type == 'MESH']
+                for obj in mesh_objects:
+                    obj.select_set(True)
 
-                # Set the active object to "Body"
-                bpy.context.view_layer.objects.active = bpy.data.objects["Body"]
+                # Set the active object to "Body" if it exists, otherwise use the first mesh object
+                body_object = bpy.data.objects.get("Body")
+                if body_object is not None:
+                    bpy.context.view_layer.objects.active = body_object
+                elif mesh_objects:
+                    bpy.context.view_layer.objects.active = mesh_objects[0]
 
                 # Join the selected objects into the active object
                 bpy.ops.object.join()
