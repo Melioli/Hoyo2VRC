@@ -22,9 +22,22 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
 
         def ScaleModel():
             for ob in bpy.context.scene.objects:
-                if ob.type in ['ARMATURE']:
+                if ob.type == 'ARMATURE':
                     ob.select_set(True)
-                    bpy.ops.transform.resize(value=(100, 100, 100), orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=False, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=True, use_snap_edit=False, use_snap_nonedit=False, use_snap_selectable=False)
+                    
+                    # Get the dimensions of the armature
+                    dimensions = ob.dimensions
+
+                    # Check the Z dimension and scale accordingly
+                    if dimensions.z > 100:
+                        bpy.ops.transform.resize(value=(0.01, 0.01, 0.01))
+                    elif dimensions.z > 10:
+                        bpy.ops.transform.resize(value=(0.1, 0.1, 0.1))
+                    elif 1 < dimensions.z < 3:
+                        pass  # Do nothing
+                    elif dimensions.z < 0:
+                        bpy.ops.transform.resize(value=(100, 100, 100))
+
                     ob.select_set(False)
 
         def RemoveEmpties():
