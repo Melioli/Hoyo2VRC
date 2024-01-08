@@ -347,8 +347,8 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                 pass
             
         def Run():
-            ScaleModel()
             RemoveEmpties()
+            ScaleModel()
             GenerateShapeKeys()
             clear_animation_data()
             ClearRotations()

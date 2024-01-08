@@ -258,8 +258,8 @@ class ConvertGenshinPlayerCharacter(Operator):
                 pass
             
         def Run():
-            ScaleModel()
             RemoveEmpties()
+            ScaleModel()
             ClearRotations()
             CleanMeshes()
             FixModelBoneView()
