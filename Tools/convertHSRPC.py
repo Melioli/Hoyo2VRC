@@ -325,6 +325,34 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                     )
                     ob.select_set(False)
 
+        def RequestMeshMerge():
+            if bpy.context.scene.merge_all_meshes:
+                # User checked "Merge All Meshes", so merge all meshes
+
+                # Deselect all objects
+                bpy.ops.object.select_all(action='DESELECT')
+
+                # Select all mesh objects
+                mesh_objects = [obj for obj in bpy.data.objects if obj.type == 'MESH']
+                for obj in mesh_objects:
+                    obj.select_set(True)
+
+                # Set the active object to "Body" if it exists, otherwise use the first mesh object
+                body_object = bpy.data.objects.get("Body")
+                if body_object is not None:
+                    bpy.context.view_layer.objects.active = body_object
+                elif mesh_objects:
+                    bpy.context.view_layer.objects.active = mesh_objects[0]
+
+                # Join the selected objects into the active object
+                bpy.ops.object.join()
+
+                # Rename the active object to "Body"
+                bpy.context.active_object.name = "Body"
+            else:
+                # User unchecked "Merge All Meshes", so do nothing
+                pass
+            
         def Run():
             ScaleModel()
             RemoveEmpties()
@@ -339,6 +367,7 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             FixModelBoneView()
             FixVRCLite()
             FixEyes()
+            RequestMeshMerge()
             ApplyTransforms()
 
         Run()
