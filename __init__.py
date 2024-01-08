@@ -73,7 +73,7 @@ class Hoyo2VRCModelPanel(Panel):
                     text='Convert HSR Avatar',
                     icon='PLAY'
                 )
-            elif re.match(r"^Avatar_\w+?_C\d+(_\w+)*$", name):
+            elif re.match(r"^Avatar_\w+?_C\d+(_\w+)$", name):
                 # Honkai Impact Playable Character
                 split.operator(
                     operator='hoyo2vrc.converthi3pc',
