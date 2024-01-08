@@ -1,17 +1,13 @@
 import os
 import bpy
-from bpy.types import Operator
+import importlib
 
-class InstallDependencies(Operator):
-    '''Install Dependencies'''
-    bl_idname = 'hoyo2vrc.install_addons'
-    bl_label = 'Hoyo2VRC: Install Dependencies'
+class CheckAndInstallDependencies:
+    '''Check and Install Dependencies'''
 
-    def execute(self, context):
+    def __init__(self):
         """
-        Import
-        1. Install CATS
-        2. Install BetterFBX
+        Check if specified addons are installed and enabled, and install them if not
         """
         # Define path to your downloaded script
         rootdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,21 +18,48 @@ class InstallDependencies(Operator):
 
         # Further specify that of this list of files, you only want the ones with the .zip extension.
         script_list = [item for item in file_list if item.endswith('.zip')]
-        
-        # Clear the cache
-        bpy.ops.wm.read_homefile(use_empty=True)
 
-        # Specify the file path of the individual scripts (their names joined with the location of your downloaded scripts folder) then use wm.addon_install() to install them. 
+        # Specify which add-ons you want enabled, their required versions, and their corresponding file names
+        enableTheseAddons = {
+            'cats-blender-plugin-development': ('cats.zip', '(0, 19, 0)'),
+            'better_fbx': ('betterfbx.zip', '(5, 1, 1)')
+        }
+
+        # Check if the required add-ons are installed and enabled
+        installed_addons = {addon.module: addon for addon in bpy.context.preferences.addons}
+
+        for addon, (addon_file, required_version) in enableTheseAddons.items():
+            if addon in installed_addons:
+                # The add-on is installed, so check its version
+                module = importlib.import_module(addon)
+                installed_version = str(module.bl_info['version'])
+                if installed_version == required_version:
+                    # The installed version is the required version
+                    print(f"Addon {addon} is installed and enabled with the required version {required_version}.")
+                else:
+                    # The installed version is not the required version, so install it
+                    self.install_addon(addon, addon_file, path_to_script_dir, script_list)
+            else:
+                # The add-on is not installed, so install it
+                self.install_addon(addon, addon_file, path_to_script_dir, script_list)
+
+    def install_addon(self, addon, addon_file, path_to_script_dir, script_list):
         for file in script_list:
-            path_to_file = os.path.join(path_to_script_dir, file)
-            bpy.ops.preferences.addon_install(overwrite=True, target='DEFAULT', filepath=path_to_file, filter_folder=True, filter_python=False, filter_glob="*.py;*.zip")
+            if addon_file == file:
+                path_to_file = os.path.join(path_to_script_dir, file)
+                def install_and_enable_addon():
+                    # Display a warning message
+                    bpy.ops.ui.show_message_box(message=f"Warning: The existing version of the {addon} addon will be removed and replaced with a new version. This will also remove any user settings for the addon.")
+                    # Remove the existing version of the addon
+                    bpy.ops.preferences.addon_remove(module=addon)
+                    # Install the new version of the addon
+                    bpy.ops.preferences.addon_install(overwrite=True, target='DEFAULT', filepath=path_to_file, filter_folder=True, filter_python=False, filter_glob="*.py;*.zip")
+                    bpy.ops.preferences.addon_refresh()  # Refresh the addons list
+                    print(f"Attempting to enable addon: {addon}")  # Print the addon name before trying to enable it
+                    bpy.ops.preferences.addon_enable(module=addon)
+                    print(f"Addon {addon} has been installed and enabled.")
+                bpy.app.timers.register(install_and_enable_addon)
+                break
 
-        # Specify which add-ons you want enabled. For example, Crowd Render, Pie Menu Editor, etc. Use the script's python module. 
-        enableTheseAddons = ['cats-blender-plugin-development', 'better_fbx']
-
-        # Use addon_enable() to enable them.
-        for string in enableTheseAddons: 
-            name = enableTheseAddons
-            bpy.ops.preferences.addon_enable(module = string)
-
-        return {'FINISHED'}
+# Create an instance of the CheckAndInstallDependencies class
+check_and_install_dependencies = CheckAndInstallDependencies()

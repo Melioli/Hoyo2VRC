@@ -4,12 +4,14 @@ import re
 from pathlib import Path
 from bpy.types import Panel
 
+
 from Hoyo2VRC.Tools.betterfbx import BetterFBXImport, BetterFBXExport
-from Hoyo2VRC.Tools.installaddon import InstallDependencies
+from .Tools import installaddon
 from Hoyo2VRC.Tools.convertGIPC import ConvertGenshinPlayerCharacter
 from Hoyo2VRC.Tools.convertHSRPC import ConvertHonkaiStarRailPlayerCharacter
 from Hoyo2VRC.Tools.convertHI3PC import ConvertHonkaiImpactPlayerCharacter
 from Hoyo2VRC.Tools.convertNPC import ConvertNonePlayerCharacter
+
 
 
 bl_info = {
@@ -131,11 +133,6 @@ class Hoyo2VRCSettingsPanel(Panel):
 
         # Add a row for installing dependencies
         row = box.row()
-        row.operator(
-            operator='hoyo2vrc.install_addons',
-            text='Install Dependencies',
-            icon='ERROR'
-        )
         
 
 classes = [
@@ -149,8 +146,6 @@ classes = [
     Hoyo2VRCToggleMenu,
     Hoyo2VRCToggleMenuButton,
     Hoyo2VRCSettingsPanel,
-    InstallDependencies
-
 ]
 
 def register():
@@ -162,6 +157,9 @@ def register():
 
     for cls in classes:
         bpy.utils.register_class(cls)
+        
+    # Create an instance of the InstallDependencies class
+    installaddon.CheckAndInstallDependencies()
 
 def unregister():
     for cls in classes:
