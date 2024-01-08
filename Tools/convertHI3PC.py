@@ -60,31 +60,31 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
 
             # Generate A Shape Key
             bpy.ops.object.select_all(action='DESELECT')
-            bpy.data.objects['Body'].select_set(True)
-            bpy.context.view_layer.objects.active = bpy.data.objects['Body']
+            bpy.data.objects['Face'].select_set(True)
+            bpy.context.view_layer.objects.active = bpy.data.objects['Face']
             bpy.data.shape_keys[getKeyBlock("Mouth_A01")].key_blocks["Mouth_A01"].value = 1.0
-            bpy.data.objects['Body'].shape_key_add(name="A", from_mix=True)
+            bpy.data.objects['Face'].shape_key_add(name="A", from_mix=True)
             bpy.data.shape_keys[getKeyBlock("Mouth_A01")].key_blocks["Mouth_A01"].value = 0.0
 
             # Generate O Shape Key
             bpy.ops.object.select_all(action='DESELECT')
-            bpy.data.objects['Body'].select_set(True)
-            bpy.context.view_layer.objects.active = bpy.data.objects['Body']
+            bpy.data.objects['Face'].select_set(True)
+            bpy.context.view_layer.objects.active = bpy.data.objects['Face']
             bpy.data.shape_keys[getKeyBlock("Mouth_O01")].key_blocks["Mouth_O01"].value = 1.0
-            bpy.data.objects['Body'].shape_key_add(name="O", from_mix=True)
+            bpy.data.objects['Face'].shape_key_add(name="O", from_mix=True)
             bpy.data.shape_keys[getKeyBlock("Mouth_O01")].key_blocks["Mouth_O01"].value = 0.0
 
             # Generate CH Shape Key
             bpy.ops.object.select_all(action='DESELECT')
-            bpy.data.objects['Body'].select_set(True)
-            bpy.context.view_layer.objects.active = bpy.data.objects['Body']
+            bpy.data.objects['Face'].select_set(True)
+            bpy.context.view_layer.objects.active = bpy.data.objects['Face']
             bpy.data.shape_keys[getKeyBlock("Mouth_Angry02")].key_blocks["Mouth_Angry02"].value = 1.0
-            bpy.data.objects['Body'].shape_key_add(name="I", from_mix=True)
+            bpy.data.objects['Face'].shape_key_add(name="I", from_mix=True)
             bpy.data.shape_keys[getKeyBlock("Mouth_Angry02")].key_blocks["Mouth_Angry02"].value = 0.0
 
             # Create viseme shape keys
+            bpy.context.scene.mesh_name_viseme = 'Face'
             bpy.ops.cats_viseme.create()
-
             bpy.ops.object.select_all(action='DESELECT')
 
         def FixEyes():
