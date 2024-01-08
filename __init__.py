@@ -36,6 +36,14 @@ class Hoyo2VRCModelPanel(Panel):
 
     def draw(self, context):
         layout = self.layout
+        
+         # Get the version number from bl_info
+        version = bl_info["version"]
+        version_str = '.'.join(map(str, version))
+
+        # Create a box for the version number
+        box = layout.box()
+        box.label(text="Hoyo2VRC Version:" + version_str, icon='INFO')  # You can replace 'INFO' with any other icon you prefer
 
         # Add a box section for the model
         box = layout.box()
