@@ -230,6 +230,39 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             else:
                 print("Armature not found.")
 
+        def ReparentBones():
+            # Get the armature object
+            armature = None
+            for obj in bpy.context.scene.objects:
+                if obj.type == 'ARMATURE':
+                    armature = obj
+                    break
+
+            # Check if an armature was found
+            if armature is None:
+                print("No armature found in the scene")
+                return
+
+            # Go into edit mode
+            bpy.ops.object.mode_set(mode='EDIT')
+
+            # Get the left and right elbow bones
+            left_elbow = armature.data.edit_bones.get('Left elbow')  # Replace 'LeftElbow' with the name of your left elbow bone
+            right_elbow = armature.data.edit_bones.get('Right elbow')  # Replace 'RightElbow' with the name of your right elbow bone
+
+            # Iterate over all the bones in the armature
+            for bone in armature.data.edit_bones:
+                # If the bone name contains 'Bone_Twist_L', reparent it to the left elbow
+                if 'Bone_Twist_L' in bone.name and left_elbow is not None:
+                    bone.parent = left_elbow
+
+                # If the bone name contains 'Bone_Twist_R', reparent it to the right elbow
+                elif 'Bone_Twist_R' in bone.name and right_elbow is not None:
+                    bone.parent = right_elbow
+
+            # Go back to object mode
+            bpy.ops.object.mode_set(mode='OBJECT')
+        
         def ApplyTransforms():
             for ob in bpy.context.scene.objects:
                 if ob.type in ['MESH', 'ARMATURE']:
@@ -328,6 +361,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             FixEyes()
             FixSpine()
             RenameBones()
+            ReparentBones()
             MergeFaceByDistance()
             RequestMeshMerge()
             ScaleModel()
