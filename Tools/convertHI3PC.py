@@ -368,6 +368,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             RemoveEmpties()
             ScaleModel()
             ClearRotations()
+            ScaleModel()
             CleanMeshes()
             FixModelBoneView()
             GenShapekey()
@@ -378,7 +379,6 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             ReparentBones()
             MergeFaceByDistance()
             RequestMeshMerge()
-            ScaleModel()
             ApplyTransforms()
 
         Run()

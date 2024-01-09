@@ -383,6 +383,7 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             GenerateShapeKeys()
             clear_animation_data()
             ClearRotations()
+            ScaleModel()
             CleanMeshes()
             FaceMask()
             MergeMeshes()
@@ -393,7 +394,6 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             FixEyes()
             RotateKnees()
             RequestMeshMerge()
-            ScaleModel()
             ApplyTransforms()
 
         Run()

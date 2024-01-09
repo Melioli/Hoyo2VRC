@@ -306,6 +306,7 @@ class ConvertGenshinPlayerCharacter(Operator):
             RemoveEmpties()
             ScaleModel()
             ClearRotations()
+            ScaleModel()
             CleanMeshes()
             FixModelBoneView()
             GenShapekey()
@@ -314,7 +315,6 @@ class ConvertGenshinPlayerCharacter(Operator):
             RotateKnees()
             MergeFaceByDistance()
             RequestMeshMerge()
-            ScaleModel()
             ApplyTransforms()
             
         Run()
