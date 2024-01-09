@@ -331,7 +331,39 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             else:
                 # User unchecked "Merge All Meshes", so do nothing
                 pass
-            
+        
+        def ClearBoneRolls():
+            # Get the armature object
+            armature = None
+            for obj in bpy.context.scene.objects:
+                if obj.type == 'ARMATURE':
+                    armature = obj
+                    break
+
+            # Check if an armature was found
+            if armature is None:
+                print("No armature found in the scene")
+                return
+
+            # Select the armature and set it as the active object
+            armature.select_set(True)
+            bpy.context.view_layer.objects.active = armature
+
+            # Go into edit mode
+            bpy.ops.object.mode_set(mode='EDIT')
+
+            # Select all bones
+            bpy.ops.armature.select_all(action='SELECT')
+
+            # Clear the roll of all selected bones
+            bpy.ops.armature.roll_clear()
+
+            # Deselect all bones
+            bpy.ops.armature.select_all(action='DESELECT')
+
+            # Go back to object mode
+            bpy.ops.object.mode_set(mode='OBJECT')
+                
         def Run():
             RemoveEmpties()
             ScaleModel()
@@ -349,6 +381,7 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             RequestMeshMerge()
             ScaleModel()
             ApplyTransforms()
+            ClearBoneRolls()
 
         Run()
 

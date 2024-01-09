@@ -170,7 +170,39 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             
             attachfeets('Spine', 'Chest')
             bpy.ops.object.mode_set(mode='OBJECT')
+            
+        def ClearBoneRolls():
+            # Get the armature object
+            armature = None
+            for obj in bpy.context.scene.objects:
+                if obj.type == 'ARMATURE':
+                    armature = obj
+                    break
 
+            # Check if an armature was found
+            if armature is None:
+                print("No armature found in the scene")
+                return
+
+            # Select the armature and set it as the active object
+            armature.select_set(True)
+            bpy.context.view_layer.objects.active = armature
+
+            # Go into edit mode
+            bpy.ops.object.mode_set(mode='EDIT')
+
+            # Select all bones
+            bpy.ops.armature.select_all(action='SELECT')
+
+            # Clear the roll of all selected bones
+            bpy.ops.armature.roll_clear()
+
+            # Deselect all bones
+            bpy.ops.armature.select_all(action='DESELECT')
+
+            # Go back to object mode
+            bpy.ops.object.mode_set(mode='OBJECT')
+            
         def RenameBones():
             # Define the bone names and new names
             bone_names = ["Eye_L_End", "Eye_R_End"]
@@ -251,6 +283,9 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
 
             # Merge vertices by distance
             bpy.ops.mesh.remove_doubles()
+            
+            # Deselect all vertices
+            bpy.ops.mesh.select_all(action='DESELECT')
 
             # Switch back to object mode
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -297,6 +332,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             RequestMeshMerge()
             ScaleModel()
             ApplyTransforms()
+            ClearBoneRolls()
 
         Run()
         
