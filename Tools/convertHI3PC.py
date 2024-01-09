@@ -1,6 +1,7 @@
 import bpy
 from bpy.types import Operator
 import os
+import math
 
 
 class ConvertHonkaiImpactPlayerCharacter(Operator):
@@ -171,38 +172,6 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             attachfeets('Spine', 'Chest')
             bpy.ops.object.mode_set(mode='OBJECT')
             
-        def ClearBoneRolls():
-            # Get the armature object
-            armature = None
-            for obj in bpy.context.scene.objects:
-                if obj.type == 'ARMATURE':
-                    armature = obj
-                    break
-
-            # Check if an armature was found
-            if armature is None:
-                print("No armature found in the scene")
-                return
-
-            # Select the armature and set it as the active object
-            armature.select_set(True)
-            bpy.context.view_layer.objects.active = armature
-
-            # Go into edit mode
-            bpy.ops.object.mode_set(mode='EDIT')
-
-            # Select all bones
-            bpy.ops.armature.select_all(action='SELECT')
-
-            # Clear the roll of all selected bones
-            bpy.ops.armature.roll_clear()
-
-            # Deselect all bones
-            bpy.ops.armature.select_all(action='DESELECT')
-
-            # Go back to object mode
-            bpy.ops.object.mode_set(mode='OBJECT')
-            
         def RenameBones():
             # Define the bone names and new names
             bone_names = ["Eye_L_End", "Eye_R_End"]
@@ -350,7 +319,51 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             else:
                 # User unchecked "Merge All Meshes", so do nothing
                 pass
+        
+        def RotateKnees():
+            # Get the armature object
+            armature = None
+            for obj in bpy.context.scene.objects:
+                if obj.type == 'ARMATURE':
+                    armature = obj
+                    break
 
+            # Check if an armature was found
+            if armature is None:
+                print("No armature found in the scene")
+                return
+
+            # Select the armature and set it as the active object
+            armature.select_set(True)
+            bpy.context.view_layer.objects.active = armature
+
+            # Go into pose mode
+            bpy.ops.object.mode_set(mode='POSE')
+
+            # Get the left and right knee bones
+            left_knee = armature.pose.bones.get('Left knee')  # Replace 'LeftKnee' with the name of your left knee bone
+            right_knee = armature.pose.bones.get('Right knee')  # Replace 'RightKnee' with the name of your right knee bone
+
+            # Check if the knee bones were found
+            if left_knee is None or right_knee is None:
+                print("Could not find the knee bones")
+                return
+
+            # Rotate the left knee on the X axis by 3 degrees
+            left_knee.rotation_euler.x += math.radians(3)
+            
+            # Rotate the right knee on the X axis by 3 degrees
+            right_knee.rotation_euler.x += math.radians(3)
+            
+            # Apply the current pose as the rest pose
+            bpy.ops.pose.armature_apply()
+            
+            # Update the scene
+            bpy.context.view_layer.update()
+
+            # Go back to object mode
+            bpy.ops.object.mode_set(mode='OBJECT')
+            
         def Run():
             RemoveEmpties()
             ScaleModel()
@@ -360,13 +373,13 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             GenShapekey()
             FixEyes()
             FixSpine()
+            RotateKnees()
             RenameBones()
             ReparentBones()
             MergeFaceByDistance()
             RequestMeshMerge()
             ScaleModel()
             ApplyTransforms()
-            ClearBoneRolls()
 
         Run()
         

@@ -1,6 +1,7 @@
 import bpy
 from bpy.types import Operator
 import bmesh
+import math
 import os
 
 
@@ -256,8 +257,8 @@ class ConvertGenshinPlayerCharacter(Operator):
             else:
                 # User unchecked "Merge All Meshes", so do nothing
                 pass
-        
-        def ClearBoneRolls():
+         
+        def RotateKnees():
             # Get the armature object
             armature = None
             for obj in bpy.context.scene.objects:
@@ -274,17 +275,29 @@ class ConvertGenshinPlayerCharacter(Operator):
             armature.select_set(True)
             bpy.context.view_layer.objects.active = armature
 
-            # Go into edit mode
-            bpy.ops.object.mode_set(mode='EDIT')
+            # Go into pose mode
+            bpy.ops.object.mode_set(mode='POSE')
 
-            # Select all bones
-            bpy.ops.armature.select_all(action='SELECT')
+            # Get the left and right knee bones
+            left_knee = armature.pose.bones.get('Left knee')  # Replace 'LeftKnee' with the name of your left knee bone
+            right_knee = armature.pose.bones.get('Right knee')  # Replace 'RightKnee' with the name of your right knee bone
 
-            # Clear the roll of all selected bones
-            bpy.ops.armature.roll_clear()
+            # Check if the knee bones were found
+            if left_knee is None or right_knee is None:
+                print("Could not find the knee bones")
+                return
 
-            # Deselect all bones
-            bpy.ops.armature.select_all(action='DESELECT')
+            # Rotate the left knee on the X axis by 3 degrees
+            left_knee.rotation_euler.x += math.radians(3)
+            
+            # Rotate the right knee on the X axis by 3 degrees
+            right_knee.rotation_euler.x += math.radians(3)
+            
+            # Apply the current pose as the rest pose
+            bpy.ops.pose.armature_apply()
+            
+            # Update the scene
+            bpy.context.view_layer.update()
 
             # Go back to object mode
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -298,11 +311,11 @@ class ConvertGenshinPlayerCharacter(Operator):
             GenShapekey()
             FixEyes()
             FixSpine()
+            RotateKnees()
             MergeFaceByDistance()
             RequestMeshMerge()
             ScaleModel()
             ApplyTransforms()
-            ClearBoneRolls()
             
         Run()
         
