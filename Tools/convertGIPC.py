@@ -287,12 +287,22 @@ class ConvertGenshinPlayerCharacter(Operator):
                 print("Could not find the knee bones")
                 return
 
-            # Rotate the left knee on the X axis by 3 degrees
-            left_knee.rotation_euler.x += math.radians(3)
-            
-            # Rotate the right knee on the X axis by 3 degrees
-            right_knee.rotation_euler.x += math.radians(3)
-            
+            if 'Boy' in Basetype:
+                left_knee.rotation_euler.x += math.radians(7) 
+                right_knee.rotation_euler.x += math.radians(7)
+            elif 'Girl' in Basetype:
+                left_knee.rotation_euler.x += math.radians(12) 
+                right_knee.rotation_euler.x += math.radians(12)
+            elif 'Lady' in Basetype:
+                left_knee.rotation_euler.x += math.radians(10) 
+                right_knee.rotation_euler.x += math.radians(10)
+            elif 'Male' in Basetype:
+                left_knee.rotation_euler.x += math.radians(3) 
+                right_knee.rotation_euler.x += math.radians(3)
+            elif 'Loli' in Basetype:
+                left_knee.rotation_euler.x += math.radians(6) 
+                right_knee.rotation_euler.x += math.radians(6)
+                    
             # Apply the current pose as the rest pose
             bpy.ops.pose.armature_apply()
             
