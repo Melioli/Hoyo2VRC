@@ -22,7 +22,7 @@ class CheckAndInstallDependencies:
         # Specify which add-ons you want enabled, their required versions, and their corresponding file names
         enableTheseAddons = {
             'cats-blender-plugin-development': ('cats.zip', '(0, 19, 0)'),
-            'better_fbx': ('betterfbx.zip', '(5, 1, 1)')
+            'better_fbx': ('betterfbx.zip', '(5, 4, 8)')
         }
 
         # Check if the required add-ons are installed and enabled
@@ -43,23 +43,30 @@ class CheckAndInstallDependencies:
                 # The add-on is not installed, so install it
                 self.install_addon(addon, addon_file, path_to_script_dir, script_list)
 
-    def install_addon(self, addon, addon_file, path_to_script_dir, script_list):
-        for file in script_list:
-            if addon_file == file:
-                path_to_file = os.path.join(path_to_script_dir, file)
-                def install_and_enable_addon():
-                    # Display a warning message
-                    bpy.ops.ui.show_message_box(message=f"Warning: The existing version of the {addon} addon will be removed and replaced with a new version. This will also remove any user settings for the addon.")
-                    # Remove the existing version of the addon
-                    bpy.ops.preferences.addon_remove(module=addon)
-                    # Install the new version of the addon
-                    bpy.ops.preferences.addon_install(overwrite=True, target='DEFAULT', filepath=path_to_file, filter_folder=True, filter_python=False, filter_glob="*.py;*.zip")
-                    bpy.ops.preferences.addon_refresh()  # Refresh the addons list
-                    print(f"Attempting to enable addon: {addon}")  # Print the addon name before trying to enable it
-                    bpy.ops.preferences.addon_enable(module=addon)
-                    print(f"Addon {addon} has been installed and enabled.")
-                bpy.app.timers.register(install_and_enable_addon)
-                break
+    def install_and_enable_addon(addon):
+        # Check if the addon is already installed
+        if addon in bpy.context.preferences.addons.keys():
+            # Get the window and screen
+            window = bpy.context.window
+            screen = window.screen
+
+            # Get the preferences area
+            for area in screen.areas:
+                if area.type == 'PREFERENCES':
+                    break
+            else:
+                # No preferences area, raise an error
+                raise RuntimeError("No preferences area")
+
+            # Override the context
+            override = {'window': window, 'screen': screen, 'area': area}
+
+            # Remove the existing version of the addon
+            bpy.ops.preferences.addon_remove(override, module=addon)
+
+        # Install and enable the new version of the addon
+        bpy.ops.preferences.addon_install(filepath=addon)
+        bpy.ops.preferences.addon_enable(module=addon)
 
 # Create an instance of the CheckAndInstallDependencies class
 check_and_install_dependencies = CheckAndInstallDependencies()
