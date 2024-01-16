@@ -22,7 +22,7 @@ class CheckAndInstallDependencies:
         # Specify which add-ons you want enabled, their required versions, and their corresponding file names
         enableTheseAddons = {
             'cats-blender-plugin-development': ('cats.zip', '(0, 19, 0)'),
-            'better_fbx': ('betterfbx.zip', '(5, 4, 8)')
+            'better_fbx': ('betterfbx.zip', '(5, 1, 1)')
         }
 
         # Check if the required add-ons are installed and enabled
