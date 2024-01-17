@@ -5,8 +5,9 @@ from pathlib import Path
 from bpy.types import Panel
 
 
-from Hoyo2VRC.Tools.betterfbx import BetterFBXImport, BetterFBXExport
-from .Tools import installaddon
+from Hoyo2VRC.Tools.importer import Hoyo2VRCImportFbx
+from Hoyo2VRC.Tools.exporter import Hoyo2VRCExportFbx
+from Hoyo2VRC.Tools.hoyofbx import Hoyo2VRCImport, Hoyo2VRCExport
 from Hoyo2VRC.Tools.convertGIPC import ConvertGenshinPlayerCharacter
 from Hoyo2VRC.Tools.convertHSRPC import ConvertHonkaiStarRailPlayerCharacter
 from Hoyo2VRC.Tools.convertHI3PC import ConvertHonkaiImpactPlayerCharacter
@@ -17,11 +18,11 @@ from Hoyo2VRC.Tools.convertNPC import ConvertNonePlayerCharacter
 bl_info = {
     "name": "Hoyo2VRC",
     "author": "Meliodas, Mken",
-    "version": (1, 1, 1),
+    "version": (2, 0, 0),
     "blender": (3, 6, 2),
     "location": "3D View > Sidebar > Hoyo2VRC",
     "description": "Convert Hoyoverse rips to VRC",
-    "warning": "Requires CATS and BetterFBX. Please run the Install Dependencies Button",
+    "warning": "Requires Hoyoverse Datamined Assets",
     "doc_url": "",
     "support": 'COMMUNITY',
     "category": "VRC",
@@ -32,6 +33,7 @@ bl_info = {
 class Hoyo2VRCModelPanel(Panel):
     bl_idname = "hoyo2vrc_PT_model_panel"
     bl_label = "Model"
+    
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Hoyo2VRC"
@@ -55,14 +57,14 @@ class Hoyo2VRCModelPanel(Panel):
         # Add a row for importing the model
         row = box.row()
         row.operator(
-            operator='hoyo2vrc.betterfbx_import',
+            operator='hoyo2vrc.import',
             text='Import Model',
             icon='IMPORT'
         )
         if bpy.context.selected_objects:
             #Add a row for exporting the model
             row.operator(
-                operator='hoyo2vrc.betterfbx_export',
+                operator='hoyo2vrc.export',
                 text='Export Model',
                 icon='EXPORT'
             )
@@ -142,8 +144,10 @@ classes = [
     ConvertHonkaiImpactPlayerCharacter,
     ConvertHonkaiStarRailPlayerCharacter,
     ConvertNonePlayerCharacter,
-    BetterFBXImport,
-    BetterFBXExport,
+    Hoyo2VRCImportFbx,
+    Hoyo2VRCExportFbx,
+    Hoyo2VRCImport,
+    Hoyo2VRCExport,
     Hoyo2VRCModelPanel,
     Hoyo2VRCToggleMenu,
     Hoyo2VRCToggleMenuButton,
@@ -159,9 +163,6 @@ def register():
 
     for cls in classes:
         bpy.utils.register_class(cls)
-        
-    # Create an instance of the InstallDependencies class
-    installaddon.CheckAndInstallDependencies()
 
 def unregister():
     for cls in classes:
