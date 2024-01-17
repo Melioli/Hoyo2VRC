@@ -21,13 +21,13 @@ bl_info = {
     "version": (2, 0, 0),
     "blender": (3, 6, 2),
     "location": "3D View > Sidebar > Hoyo2VRC",
-    "description": "Convert Hoyoverse rips to VRC",
+    "description": "Convert Hoyoverse models to VRC",
     "warning": "Requires Hoyoverse Datamined Assets",
     "doc_url": "",
     "support": 'COMMUNITY',
     "category": "VRC",
     "tracker_url": "",
-    "doc_url": ""
+    "doc_url": "https://docs.hoyotoon.com"
 }
 
 class Hoyo2VRCModelPanel(Panel):
