@@ -475,9 +475,14 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             bpy.ops.armature.select_all(action="DESELECT")
 
             def attachfeets(foot, toe):
-                armature.edit_bones[foot].tail.x = armature.edit_bones[toe].head.x
-                armature.edit_bones[foot].tail.y = armature.edit_bones[toe].head.y
-                armature.edit_bones[foot].tail.z = armature.edit_bones[toe].head.z     
+                foot_bone = next(bone for bone in bpy.context.object.data.bones if foot in bone.name)
+                toe_bone = next(bone for bone in bpy.context.object.data.bones if toe in bone.name)
+                armature.edit_bones[foot_bone.name].tail.x = armature.edit_bones[toe_bone.name].head.x
+                armature.edit_bones[foot_bone.name].tail.y = armature.edit_bones[toe_bone.name].head.y
+                armature.edit_bones[foot_bone.name].tail.z = armature.edit_bones[toe_bone.name].head.z
+                            
+            def ContainsName(name):
+                return any(name in bone.name for bone in bpy.context.object.data.bones)
                   
             if bpy.context.scene.connect_chest_to_neck:
                 attachfeets("Chest", "Neck")
@@ -488,6 +493,8 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             attachfeets("Right leg", "Right knee")
             attachfeets("Right arm", "Right elbow")
             attachfeets("Left arm", "Left elbow")
+            attachfeets("Left elbow", "Left wrist")
+            attachfeets("Right elbow", "Right wrist")
             attachfeets("Neck", "Head")
             bpy.ops.object.mode_set(mode="OBJECT")
 

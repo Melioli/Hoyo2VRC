@@ -441,11 +441,17 @@ class ConvertGenshinPlayerCharacter(Operator):
             bpy.ops.armature.select_all(action="DESELECT")
 
             def attachfeets(foot, toe):
-                armature.edit_bones[foot].tail.x = armature.edit_bones[toe].head.x
-                armature.edit_bones[foot].tail.y = armature.edit_bones[toe].head.y
-                armature.edit_bones[foot].tail.z = armature.edit_bones[toe].head.z
+                foot_bone = next(bone for bone in bpy.context.object.data.bones if foot in bone.name)
+                toe_bone = next(bone for bone in bpy.context.object.data.bones if toe in bone.name)
+                armature.edit_bones[foot_bone.name].tail.x = armature.edit_bones[toe_bone.name].head.x
+                armature.edit_bones[foot_bone.name].tail.y = armature.edit_bones[toe_bone.name].head.y
+                armature.edit_bones[foot_bone.name].tail.z = armature.edit_bones[toe_bone.name].head.z
+                
+            def ContainsName(name):
+                return any(name in bone.name for bone in bpy.context.object.data.bones)
             
-            attachfeets("+PelvisTwistCFA01", "Hips")    
+            if ContainsName("PelvisTwistCFA01"):
+                attachfeets("PelvisTwistCFA01", "Hips") 
                   
             if bpy.context.scene.connect_chest_to_neck:
                 attachfeets("Chest", "Neck")
@@ -454,9 +460,16 @@ class ConvertGenshinPlayerCharacter(Operator):
                 
             attachfeets("Right arm", "Right elbow")
             attachfeets("Left arm", "Left elbow")
+            attachfeets("Left elbow", "Left wrist")
+            attachfeets("Right elbow", "Right wrist")
             attachfeets("Neck", "Head")
-            attachfeets("+UpperArmTwistRA01", "+UpperArmTwistRA02")
-            attachfeets("+UpperArmTwistLA01", "+UpperArmTwistLA02")
+            
+            if ContainsName("UpperArmTwistRA01") and ContainsName("UpperArmTwistRA02"):
+                attachfeets("UpperArmTwistRA01", "UpperArmTwistRA02")
+                
+            if ContainsName("UpperArmTwistLA01") and ContainsName("UpperArmTwistLA02"):
+                attachfeets("UpperArmTwistLA01", "UpperArmTwistLA02")
+                
             bpy.ops.object.mode_set(mode="OBJECT")
             
         def GenShapekey():
