@@ -483,7 +483,9 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
                 attachfeets("Chest", "Neck")
             else:
                 attachfeets("Upper Chest", "Neck")
-                
+            
+            attachfeets("Left leg", "Left knee")
+            attachfeets("Right leg", "Right knee")
             attachfeets("Right arm", "Right elbow")
             attachfeets("Left arm", "Left elbow")
             attachfeets("Neck", "Head")
