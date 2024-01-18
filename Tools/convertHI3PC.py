@@ -64,12 +64,12 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
 
         def CleanMeshes():
             for obj in bpy.data.objects:
-                if obj.type == 'MESH' and obj.name in ['Weapon_L', 'Weapon_R']:
+                if obj.type == 'MESH' and (obj.name in ['Weapon_L', 'Weapon_R'] or 'lod' in obj.name.lower()):
                     bpy.data.objects.remove(obj, do_unlink=True)
                     
         def CleanBones():
             # Define the bone names to remove
-            bone_names = ["Bip001", "Bone_Eye_L_01", "Bone_Eye_R_01"]
+            bone_names = ["Bip001", "Bip002", "Bone_Eye_L_01", "Bone_Eye_R_01"]
 
             # Get the armature object
             armature = None
@@ -490,6 +490,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
                 "RFinger4",
                 "RFinger41",
                 "RFinger42",
+                "Bip002Spine"
                 
             ]
             new_names = [
@@ -540,6 +541,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
                 "LittleFinger1_R",
                 "LittleFinger2_R",
                 "LittleFinger3_R",
+                "Spinal",
                 
             ]
             starts_with = [
