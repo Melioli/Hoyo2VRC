@@ -66,6 +66,17 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
 
             root = bpy.context.active_object
             face_obj = bpy.data.objects["Face"]
+            
+            if root.type != 'ARMATURE':
+                # If it's not, look for an armature among its children
+                for child in root.children:
+                    if child.type == 'ARMATURE':
+                        root = child
+                        break
+                else:
+                    # If no armature is found, print a message and return
+                    print("No armature found in the selected object or its children.")
+                    return
 
             if "Avatar" not in root.name and "Player" not in root.name:
                 # The condition is incomplete, so I'm assuming you want to return if the condition is met
