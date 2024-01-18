@@ -380,23 +380,59 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             bpy.ops.armature.select_all(action="DESELECT")
 
             def attachfeets(foot, toe):
-                armature.edit_bones[foot].tail.x = armature.edit_bones[toe].head.x
-                armature.edit_bones[foot].tail.y = armature.edit_bones[toe].head.y
-                armature.edit_bones[foot].tail.z = armature.edit_bones[toe].head.z
+                foot_bone = next(bone for bone in bpy.context.object.data.bones if foot in bone.name)
+                toe_bone = next(bone for bone in bpy.context.object.data.bones if toe in bone.name)
+                armature.edit_bones[foot_bone.name].tail.x = armature.edit_bones[toe_bone.name].head.x
+                armature.edit_bones[foot_bone.name].tail.y = armature.edit_bones[toe_bone.name].head.y
+                armature.edit_bones[foot_bone.name].tail.z = armature.edit_bones[toe_bone.name].head.z
+                            
+            def ContainsName(name):
+                return any(name in bone.name for bone in bpy.context.object.data.bones)
                   
             if bpy.context.scene.connect_chest_to_neck:
                 attachfeets("Chest", "Neck")
             else:
                 attachfeets("Upper Chest", "Neck")
+                
             attachfeets("Left knee", "Left ankle")
             attachfeets("Right knee", "Right ankle")    
             attachfeets("Right arm", "Right elbow")
             attachfeets("Left arm", "Left elbow")
+            attachfeets("Right shoulder", "Right arm")
+            attachfeets("Left shoulder", "Left arm")
             attachfeets("Right elbow", "Right wrist")
             attachfeets("Left elbow", "Left wrist")
+            attachfeets("Left leg", "Left knee")
+            attachfeets("Right leg", "Right knee")
             attachfeets("Neck", "Head")
-            attachfeets("UpperArmTwist_L_01", "UpperArmTwist_L_02")
-            attachfeets("UpperArmTwist_R_01", "UpperArmTwist_R_02")
+            
+            if ContainsName("UpperArmTwist_L_01") and ContainsName("UpperArmTwist_L_02"):
+                attachfeets("UpperArmTwist_L_01", "UpperArmTwist_L_02")
+
+            if ContainsName("UpperArmTwist_R_01") and ContainsName("UpperArmTwist_R_02"):
+                attachfeets("UpperArmTwist_R_01", "UpperArmTwist_R_02")
+                
+            if ContainsName("LUpperArmTwist") and ContainsName("LUpperArmTwist1"):
+                attachfeets("LUpperArmTwist", "LUpperArmTwist1")
+            
+            if ContainsName("RUpperArmTwist") and ContainsName("RUpperArmTwist1"):
+                attachfeets("RUpperArmTwist", "RUpperArmTwist1")
+                
+            if ContainsName("L_UpperArm_Twist_01") and ContainsName("L_UpperArm_Twist_02"):
+                attachfeets("L_UpperArm_Twist_01", "L_UpperArm_Twist_02")
+            
+            if ContainsName("R_UpperArm_Twist_01") and ContainsName("R_UpperArm_Twist_02"):
+                attachfeets("R_UpperArm_Twist_01", "R_UpperArm_Twist_02")
+            
+            if ContainsName("L_UpperArm_Twist_02"):
+                attachfeets("L_UpperArm_Twist_02", "Left elbow")
+            
+            if ContainsName("R_UpperArm_Twist_02"):
+                attachfeets("R_UpperArm_Twist_02", "Right elbow")
+            
+            
+                
+                
             bpy.ops.object.mode_set(mode="OBJECT")
             
         def RenameBones():
@@ -581,6 +617,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
                     for old, new in starts_with:
                         if bone.name.startswith(old):
                             bone.name = bone.name.replace(old, new, 1)
+                            break
                     for old, new in ends_with:
                         if bone.name.endswith(old):
                             bone.name = bone.name[:len(bone.name)-len(old)] + new
@@ -628,6 +665,22 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
                     
                 # If the bone name contains 'Bone_Twist_R', reparent it to the right elbow
                 elif 'UpperArmTwist_R' in bone.name and right_arm is not None:
+                    bone.parent = right_arm
+                
+                # If the bone name contains 'Bone_Twist_R', reparent it to the right elbow
+                elif 'LUpperArmTwist' in bone.name and left_arm is not None:
+                    bone.parent = left_arm
+                    
+                # If the bone name contains 'Bone_Twist_R', reparent it to the right elbow
+                elif 'RUpperArmTwist' in bone.name and right_arm is not None:
+                    bone.parent = right_arm
+                    
+                # If the bone name contains 'Bone_Twist_R', reparent it to the right elbow
+                elif 'L_UpperArm_Twist' in bone.name and left_arm is not None:
+                    bone.parent = left_arm
+                    
+                # If the bone name contains 'Bone_Twist_R', reparent it to the right elbow
+                elif 'R_UpperArm_Twist' in bone.name and right_arm is not None:
                     bone.parent = right_arm
                     
             # Go back to object mode
