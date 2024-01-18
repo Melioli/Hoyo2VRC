@@ -406,38 +406,50 @@ class ConvertNonePlayerCharacter(Operator):
             bpy.ops.object.mode_set(mode='OBJECT')
 
         def GenShapekey():
-            # Generate A Shape Key
+            #Generate A Shape Key
             bpy.ops.object.select_all(action='DESELECT')
-            bpy.data.objects['Body'].select_set(True)
-            bpy.context.view_layer.objects.active = bpy.data.objects['Body']
+            bpy.data.objects['Face'].select_set(True)
+            bpy.context.view_layer.objects.active = bpy.data.objects['Face']
             if getKeyBlock("Mouth_A01") is not None:
                 bpy.data.shape_keys[getKeyBlock("Mouth_A01")].key_blocks["Mouth_A01"].value = 1.0
-                bpy.data.objects['Body'].shape_key_add(name="A", from_mix=True)
+                bpy.data.objects['Face'].shape_key_add(name="A", from_mix=True)
                 bpy.data.shape_keys[getKeyBlock("Mouth_A01")].key_blocks["Mouth_A01"].value = 0.0
 
-            # Generate O Shape Key
+
+            #Generate O Shape Key
             bpy.ops.object.select_all(action='DESELECT')
-            bpy.data.objects['Body'].select_set(True)
-            bpy.context.view_layer.objects.active = bpy.data.objects['Body']
-            if getKeyBlock("Mouth_A01") is not None and getKeyBlock("Mouth_Open01") is not None:
+            bpy.data.objects['Face'].select_set(True)
+            bpy.context.view_layer.objects.active = bpy.data.objects['Face']
+            if getKeyBlock("Mouth_Fury01") is not None and getKeyBlock("Mouth_A01") is not None:
+                bpy.data.shape_keys[getKeyBlock("Mouth_Fury01")].key_blocks["Mouth_Fury01"].value = 0.25
                 bpy.data.shape_keys[getKeyBlock("Mouth_A01")].key_blocks["Mouth_A01"].value = 0.5
-                bpy.data.objects['Body'].shape_key_add(name="O", from_mix=True)
+                bpy.data.objects['Face'].shape_key_add(name="O", from_mix=True)
+                bpy.data.shape_keys[getKeyBlock("Mouth_Fury01")].key_blocks["Mouth_Fury01"].value = 0.0
+                bpy.data.shape_keys[getKeyBlock("Mouth_A01")].key_blocks["Mouth_A01"].value = 0.0
+            elif getKeyBlock("Mouth_Open01") is not None and getKeyBlock("Mouth_A01") is not None:
+                bpy.data.shape_keys[getKeyBlock("Mouth_Open01")].key_blocks["Mouth_Open01"].value = 0.5
+                bpy.data.shape_keys[getKeyBlock("Mouth_A01")].key_blocks["Mouth_A01"].value = 0.5
+                bpy.data.objects['Face'].shape_key_add(name="O", from_mix=True)
                 bpy.data.shape_keys[getKeyBlock("Mouth_Open01")].key_blocks["Mouth_Open01"].value = 0.0
                 bpy.data.shape_keys[getKeyBlock("Mouth_A01")].key_blocks["Mouth_A01"].value = 0.0
+            elif getKeyBlock("Mouth_O01") is not None and getKeyBlock("Mouth_O01") is None:
+                 bpy.data.shape_keys[getKeyBlock("Mouth_O01")].key_blocks["Mouth_O01"].value = 1.0
+                 bpy.data.objects['Face'].shape_key_add(name="O", from_mix=True)
+                 bpy.data.shape_keys[getKeyBlock("Mouth_O01")].key_blocks["Mouth_O01"].value = 0.0
+                 
 
-
-            # Generate CH Shape Key
+            #Generate CH Shape Key
             bpy.ops.object.select_all(action='DESELECT')
-            bpy.data.objects['Body'].select_set(True)
-            bpy.context.view_layer.objects.active = bpy.data.objects['Body']
+            bpy.data.objects['Face'].select_set(True)
+            bpy.context.view_layer.objects.active = bpy.data.objects['Face']
             if getKeyBlock("Mouth_Angry02") is not None:
                 bpy.data.shape_keys[getKeyBlock("Mouth_Angry02")].key_blocks["Mouth_Angry02"].value = 1.0
-                bpy.data.objects['Body'].shape_key_add(name="CH", from_mix=True)
+                bpy.data.objects['Face'].shape_key_add(name="CH", from_mix=True)
                 bpy.data.shape_keys[getKeyBlock("Mouth_Angry02")].key_blocks["Mouth_Angry02"].value = 0.0
-                bpy.ops.cats_viseme.create()
                 
             # Generate additional shape keys
             shapekey_data = {
+                
                 'vrc.v_aa': [('A', 0.9998)],
                 'vrc.v_ch': [('CH', 0.9996)],
                 'vrc.v_dd': [('A', 0.3), ('CH', 0.7)],
@@ -457,7 +469,7 @@ class ConvertNonePlayerCharacter(Operator):
 
             for shapekey_name, mix in shapekey_data.items():
                 # Check if 'Face' object exists
-                if 'Face' not in bpy.data.objects:
+                if 'Face' not in bpy.data.objects or 'Body' not in bpy.data.objects:
                     continue
 
                 # Reset all shape keys
@@ -591,6 +603,58 @@ class ConvertNonePlayerCharacter(Operator):
                 
             bpy.ops.object.mode_set(mode="OBJECT")
 
+        def MergeFaceByDistance():
+            # Get the "Face" mesh
+            face_obj = bpy.data.objects.get("Face")
+            if face_obj is None:
+                print("Face mesh not found")
+                return
+
+            # Deselect all objects
+            bpy.ops.object.select_all(action='DESELECT')
+
+            # Select the meshes to merge
+            meshes_to_merge = ["Face_Eye", "Brow"]
+            for obj_name in meshes_to_merge:
+                obj = bpy.data.objects.get(obj_name)
+                if obj is not None:
+                    obj.select_set(True)
+                else:
+                    print(f"Object {obj_name} not found")
+
+            # Also select "Face" because it's the mesh we want to join into
+            face_obj.select_set(True)
+
+            # Set the active object to "Face"
+            bpy.context.view_layer.objects.active = face_obj
+
+            # Join the selected objects into the active object
+            bpy.ops.object.join()
+
+            # Ensure we're in object mode
+            bpy.ops.object.mode_set(mode='OBJECT')
+            
+            # Select the "Face" mesh
+            bpy.ops.object.select_all(action='DESELECT')
+            face_obj.select_set(True)
+
+            # Set the active object to "Face"
+            bpy.context.view_layer.objects.active = face_obj
+
+            # Switch to edit mode
+            bpy.ops.object.mode_set(mode='EDIT')
+
+            # Select all vertices
+            bpy.ops.mesh.select_all(action='SELECT')
+
+            # Merge vertices by distance
+            bpy.ops.mesh.remove_doubles(threshold=0.00001)  # Reduce the merge distance
+            
+            bpy.ops.mesh.select_all(action='DESELECT')
+
+            # Switch back to object mode
+            bpy.ops.object.mode_set(mode='OBJECT')
+            
         def RequestMeshMerge():
             if bpy.context.scene.merge_all_meshes:
                 # User checked "Merge All Meshes", so merge all meshes
@@ -629,6 +693,7 @@ class ConvertNonePlayerCharacter(Operator):
             GenShapekey()
             FixEyes()
             FixVRCLite()
+            MergeFaceByDistance()
             RequestMeshMerge()
 
         Run()
