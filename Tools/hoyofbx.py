@@ -17,9 +17,9 @@ class Hoyo2VRCImport(Operator):
         """
         bpy.ops.hoyo2vrc_import.fbx(
             "INVOKE_DEFAULT",
-            my_rotation_mode="XYZ",
-            use_reset_mesh_origin=False,
-            my_edge_smoothing="Blender",
+            my_rotation_mode='XYZ', 
+            use_reset_mesh_origin=False, 
+            my_edge_smoothing='Blender',
         )
 
         return {"FINISHED"}
@@ -48,11 +48,18 @@ class Hoyo2VRCExport(Operator):
             0
         ]  # expecting 1 armature
         armature.select_set(True)
+        
+        # Select all objects
+        bpy.ops.object.select_all(action='SELECT')
+
+        # Apply the scale
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
 
         bpy.ops.hoyo2vrc_export.fbx(
             "INVOKE_DEFAULT",
-            my_scale=1,
-            use_optimize_for_game_engine=False,
+            my_scale=1.0,
+            use_optimize_for_game_engine=True,
+            my_fbx_version="FBX202000",
             use_reset_mesh_origin=False,
             my_edge_smoothing="None",
         )

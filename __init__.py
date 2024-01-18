@@ -78,7 +78,7 @@ class Hoyo2VRCModelPanel(Panel):
                     text='Convert GI Avatar',
                     icon='PLAY'
                 )
-            elif re.match(r"^(Avatar|Art|NPC_Avatar)_(Boy|Girl|Lady|Male|Kid|Lad|Maid|Miss|[a-zA-Z]+)?_?[a-zA-Z]*_(?<!_\d{2})\d{2}$", name):
+            elif re.match(r"^(Player|Avatar|Art|NPC_Avatar)_(Boy|Girl|Lady|Male|Kid|Lad|Maid|Miss|[a-zA-Z]+)?_?[a-zA-Z]*_(?<!_\d{2})\d{2}$", name):
                 # Honkai Star Rail Playable Character
                 row.operator(
                     operator='hoyo2vrc.converthsrpc',
@@ -107,6 +107,8 @@ class Hoyo2VRCToggleMenu(bpy.types.Menu):
         layout = self.layout
 
         layout.prop(context.scene, "merge_all_meshes", text="Merge All Meshes")
+        
+        layout.prop(context.scene, "connect_chest_to_neck", text="Chest Connects to Neck")
 
 class Hoyo2VRCToggleMenuButton(bpy.types.Operator):
     bl_idname = "hoyo2vrc.toggle_menu_button"
@@ -134,6 +136,10 @@ class Hoyo2VRCSettingsPanel(Panel):
         # Add a row for the "Merge All Meshes" option
         row = box.row()
         row.prop(context.scene, "merge_all_meshes")
+        
+        # Add a row for the "Chest Connects to Neck" option
+        row = box.row()
+        row.prop(context.scene, "connect_chest_to_neck")
 
         # Add a separator for better visual organization
         box.separator()
@@ -159,6 +165,12 @@ def register():
         name="Merge All Meshes",
         description="Decide whether all meshes should be merged or not",
         default = True
+    )
+    
+    bpy.types.Scene.connect_chest_to_neck = bpy.props.BoolProperty(
+        name="Connect Chest to Neck",
+        description="Decide the Chest bone should connect to the Neck bone instead of the Upper Chest bone",
+        default = False
     )
 
     for cls in classes:
