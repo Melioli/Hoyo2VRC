@@ -70,7 +70,7 @@ class Hoyo2VRCModelPanel(Panel):
             )
             # Add a row for converting the avatar
             row = box.row()       
-            name = bpy.context.object.name.replace(".001", "").replace("_Render", "").replace("_merge", "").replace(" (merge)", "")
+            name = bpy.context.object.name.replace(".001", "").replace("_Render", "").replace("_merge", "").replace(" (merge)", "").replace("_Edit", " ")
             if re.match(r"^(Cs_Avatar|Avatar|NPC_Avatar)_(Boy|Girl|Lady|Male|Loli)_(Sword|Claymore|Bow|Catalyst|Pole)_[a-zA-Z]+(?<!_\d{2})$", name):
                 # Genshin Impact Playable character
                 row.operator(
