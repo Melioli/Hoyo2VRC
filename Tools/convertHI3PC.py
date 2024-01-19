@@ -415,28 +415,28 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             attachfeets("Neck", "Head", True)
             
             if ContainsName("UpperArmTwist_L_01") and ContainsName("UpperArmTwist_L_02"):
-                attachfeets("UpperArmTwist_L_01", "UpperArmTwist_L_02")
+                attachfeets("UpperArmTwist_L_01", "UpperArmTwist_L_02", True)
 
             if ContainsName("UpperArmTwist_R_01") and ContainsName("UpperArmTwist_R_02"):
-                attachfeets("UpperArmTwist_R_01", "UpperArmTwist_R_02")
+                attachfeets("UpperArmTwist_R_01", "UpperArmTwist_R_02", True)
                 
             if ContainsName("LUpperArmTwist") and ContainsName("LUpperArmTwist1"):
-                attachfeets("LUpperArmTwist", "LUpperArmTwist1")
+                attachfeets("LUpperArmTwist", "LUpperArmTwist1", True)
             
             if ContainsName("RUpperArmTwist") and ContainsName("RUpperArmTwist1"):
-                attachfeets("RUpperArmTwist", "RUpperArmTwist1")
+                attachfeets("RUpperArmTwist", "RUpperArmTwist1", True)
                 
             if ContainsName("L_UpperArm_Twist_01") and ContainsName("L_UpperArm_Twist_02"):
-                attachfeets("L_UpperArm_Twist_01", "L_UpperArm_Twist_02")
+                attachfeets("L_UpperArm_Twist_01", "L_UpperArm_Twist_02", True)
             
             if ContainsName("R_UpperArm_Twist_01") and ContainsName("R_UpperArm_Twist_02"):
-                attachfeets("R_UpperArm_Twist_01", "R_UpperArm_Twist_02")
+                attachfeets("R_UpperArm_Twist_01", "R_UpperArm_Twist_02", True)
             
             if ContainsName("L_UpperArm_Twist_02"):
-                attachfeets("L_UpperArm_Twist_02", "Left elbow")
+                attachfeets("L_UpperArm_Twist_02", "Left elbow", True)
             
             if ContainsName("R_UpperArm_Twist_02"):
-                attachfeets("R_UpperArm_Twist_02", "Right elbow")
+                attachfeets("R_UpperArm_Twist_02", "Right elbow", True)
             
             
                 
@@ -498,7 +498,6 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
                 "RFinger4",
                 "RFinger41",
                 "RFinger42",
-                "Bip002Spine"
                 
             ]
             new_names = [
@@ -548,9 +547,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
                 "RingFinger3_R",
                 "LittleFinger1_R",
                 "LittleFinger2_R",
-                "LittleFinger3_R",
-                "Spinal",
-                
+                "LittleFinger3_R",           
             ]
             starts_with = [
                 ('_', ''),
