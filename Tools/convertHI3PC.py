@@ -124,7 +124,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
                         bone.parent = hips
                         
             # Find all spines
-            spines = [bone for bone in armature.data.edit_bones if re.search(r'(?<!_)spine', bone.name.lower())]
+            spines = [bone for bone in armature.data.edit_bones if re.search(r'(?<!_)spine\d*$', bone.name.lower())]
 
             # Rename spines based on the number of spines
             if len(spines) == 1:
@@ -379,32 +379,40 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             bpy.ops.object.mode_set(mode="EDIT")
             bpy.ops.armature.select_all(action="DESELECT")
 
-            def attachfeets(foot, toe):
-                foot_bone = next(bone for bone in bpy.context.object.data.bones if foot in bone.name)
-                toe_bone = next(bone for bone in bpy.context.object.data.bones if toe in bone.name)
-                armature.edit_bones[foot_bone.name].tail.x = armature.edit_bones[toe_bone.name].head.x
-                armature.edit_bones[foot_bone.name].tail.y = armature.edit_bones[toe_bone.name].head.y
-                armature.edit_bones[foot_bone.name].tail.z = armature.edit_bones[toe_bone.name].head.z
+            def attachfeets(foot, toe, exact_match=False):
+                if exact_match:
+                    foot_bone = next((bone for bone in bpy.context.object.data.bones if foot == bone.name), None)
+                    toe_bone = next((bone for bone in bpy.context.object.data.bones if toe == bone.name), None)
+                else:
+                    foot_bone = next((bone for bone in bpy.context.object.data.bones if ContainsName(foot)), None)
+                    toe_bone = next((bone for bone in bpy.context.object.data.bones if ContainsName(toe)), None)
+
+                if foot_bone and toe_bone:
+                    armature.edit_bones[foot_bone.name].tail.x = armature.edit_bones[toe_bone.name].head.x
+                    armature.edit_bones[foot_bone.name].tail.y = armature.edit_bones[toe_bone.name].head.y
+                    armature.edit_bones[foot_bone.name].tail.z = armature.edit_bones[toe_bone.name].head.z
+                else:
+                    print("Could not find matching bones.")
                             
             def ContainsName(name):
                 return any(name in bone.name for bone in bpy.context.object.data.bones)
                   
             if bpy.context.scene.connect_chest_to_neck:
-                attachfeets("Chest", "Neck")
+                attachfeets("Chest", "Neck", True)
             else:
-                attachfeets("Upper Chest", "Neck")
+                attachfeets("Upper Chest", "Neck", True)
                 
-            attachfeets("Left knee", "Left ankle")
-            attachfeets("Right knee", "Right ankle")    
-            attachfeets("Right arm", "Right elbow")
-            attachfeets("Left arm", "Left elbow")
-            attachfeets("Right shoulder", "Right arm")
-            attachfeets("Left shoulder", "Left arm")
-            attachfeets("Right elbow", "Right wrist")
-            attachfeets("Left elbow", "Left wrist")
-            attachfeets("Left leg", "Left knee")
-            attachfeets("Right leg", "Right knee")
-            attachfeets("Neck", "Head")
+            attachfeets("Left knee", "Left ankle", True)
+            attachfeets("Right knee", "Right ankle", True)    
+            attachfeets("Right arm", "Right elbow", True)
+            attachfeets("Left arm", "Left elbow", True)
+            attachfeets("Right shoulder", "Right arm", True)
+            attachfeets("Left shoulder", "Left arm", True)
+            attachfeets("Right elbow", "Right wrist", True)
+            attachfeets("Left elbow", "Left wrist", True)
+            attachfeets("Left leg", "Left knee", True)
+            attachfeets("Right leg", "Right knee", True)
+            attachfeets("Neck", "Head", True)
             
             if ContainsName("UpperArmTwist_L_01") and ContainsName("UpperArmTwist_L_02"):
                 attachfeets("UpperArmTwist_L_01", "UpperArmTwist_L_02")
