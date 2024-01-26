@@ -353,15 +353,17 @@ class ConvertNonePlayerCharacter(Operator):
                                 chest.tail[y_cord] = chest.head[y_cord]  # Align tail with head on y-axis
                                 chest.tail[z_cord] = chest.head[z_cord] + 0.065  # Adjust this value as needed
 
-                                # Fixing UpperChest
-                                upperchest.head[x_cord] = chest.tail[x_cord]
-                                upperchest.head[y_cord] = chest.tail[y_cord]
-                                upperchest.head[z_cord] = chest.tail[z_cord]
-
-                                # Make UpperChest point straight up
-                                upperchest.tail[x_cord] = upperchest.head[x_cord]
-                                upperchest.tail[y_cord] = upperchest.head[y_cord]  # Align tail with head on y-axis
-                                upperchest.tail[z_cord] = upperchest.head[z_cord] + 0.1  # Adjust this value as needed
+                                # Check if upperchest is present
+                                if upperchest is not None:
+                                    # Fixing UpperChest
+                                    upperchest.head[x_cord] = chest.tail[x_cord]
+                                    upperchest.head[y_cord] = chest.tail[y_cord]
+                                    upperchest.head[z_cord] = chest.tail[z_cord]
+                                   
+                                   # Make UpperChest point straight up
+                                    upperchest.tail[x_cord] = upperchest.head[x_cord]
+                                    upperchest.tail[y_cord] = upperchest.head[y_cord]  # Align tail with head on y-axis
+                                    upperchest.tail[z_cord] = upperchest.head[z_cord] + 0.1  # Adjust this value as needed
                                 
                                 
                                 # Make legs bend very slightly forward
@@ -517,9 +519,9 @@ class ConvertNonePlayerCharacter(Operator):
                 bone.select_head = True
                 bone.select_tail = True
 
-            if "+EyeBone_L_A02" in armature.edit_bones:
-                attacheyes('+EyeBone_L_A02', 'Head')
-                move_eyebone(armature.edit_bones["+EyeBone_L_A02"])
+            if "+EyeBoneLA02" in armature.edit_bones:
+                attacheyes('+EyeBoneLA02', 'Head')
+                move_eyebone(armature.edit_bones["+EyeBoneLA02"])
                 if blender_version >= (3, 6, 2):
                     bpy.ops.transform.translate(value=(0, 0.025, 0), orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=False, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=False, use_snap_edit=False, use_snap_nonedit=False, use_snap_selectable=False)
                 else: #3.3.0 - 3.6.1 
@@ -536,9 +538,9 @@ class ConvertNonePlayerCharacter(Operator):
                 
                 bpy.ops.armature.select_all(action='DESELECT')
 
-            elif "+EyeBone_R_A02" in armature.edit_bones:
-                attacheyes('+EyeBone_R_A02', 'Head')
-                move_eyebone(armature.edit_bones["+EyeBone_R_A02"])
+            elif "+EyeBoneRA02" in armature.edit_bones:
+                attacheyes('+EyeBoneRA02', 'Head')
+                move_eyebone(armature.edit_bones["+EyeBoneRA02"])
                 if blender_version >= (3, 6, 2):
                     bpy.ops.transform.translate(value=(0, 0.025, 0), orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=True, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=True, use_snap_edit=True, use_snap_nonedit=True, use_snap_selectable=False)
                 else: #3.3.0 - 3.6.1
