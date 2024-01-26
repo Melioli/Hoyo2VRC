@@ -596,6 +596,12 @@ class ConvertNonePlayerCharacter(Operator):
 
             if BoneExists("Left arm") and BoneExists("Left elbow"):
                 attachfeets("Left arm", "Left elbow")
+            
+            if BoneExists("Left elbow") and BoneExists("Left wrist"):
+                attachfeets("Left elbow", "Left wrist")
+                
+            if BoneExists("Right elbow") and BoneExists("Right wrist"):
+                attachfeets("Right elbow", "Right wrist")
 
             if BoneExists("Neck") and BoneExists("Head"):
                 attachfeets("Neck", "Head")
