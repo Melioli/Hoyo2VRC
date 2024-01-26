@@ -116,7 +116,7 @@ class ConvertNonePlayerCharacter(Operator):
                 
             ]
             new_names = [
-                "Spine",
+                "Hips",
                 "Left leg",
                 "Right leg",
                 "Left knee",
@@ -406,6 +406,11 @@ class ConvertNonePlayerCharacter(Operator):
             bpy.ops.object.mode_set(mode='OBJECT')
 
         def GenShapekey():
+            
+            # Check if 'Face' object exists
+            if 'Face' not in bpy.data.objects:
+                return
+    
             #Generate A Shape Key
             bpy.ops.object.select_all(action='DESELECT')
             bpy.data.objects['Face'].select_set(True)
