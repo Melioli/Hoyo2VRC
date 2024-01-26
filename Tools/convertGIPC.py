@@ -120,7 +120,7 @@ class ConvertGenshinPlayerCharacter(Operator):
                 
             ]
             new_names = [
-                "Spine",
+                "Hips",
                 "Left leg",
                 "Right leg",
                 "Left knee",
