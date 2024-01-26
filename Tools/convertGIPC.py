@@ -457,7 +457,9 @@ class ConvertGenshinPlayerCharacter(Operator):
                 attachfeets("Chest", "Neck")
             else:
                 attachfeets("Upper Chest", "Neck")
-                
+            
+            attachfeets("Left shoulder", "Left arm")
+            attachfeets("Right shoulder", "Right arm")
             attachfeets("Right arm", "Right elbow")
             attachfeets("Left arm", "Left elbow")
             attachfeets("Left elbow", "Left wrist")
