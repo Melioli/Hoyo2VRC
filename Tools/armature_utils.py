@@ -493,7 +493,6 @@ def CleanBones():
         "Bip001 Pelvis",
         "+EyeBone L A01",
         "+EyeBone R A01",
-        "Bip001",
         "Bip002",
         "Bone_Eye_L_01",
         "Bone_Eye_R_01",
@@ -543,7 +542,11 @@ def SetHipAsParent(armature):
 
 
 def RenameSpines(armature, names):
-    spines = [bone for bone in armature.data.edit_bones if "spine" in bone.name.lower()]
+    spines = [
+        bone
+        for bone in armature.data.edit_bones
+        if re.match(r"spine\d*$", bone.name.lower())
+    ]
     for i, spine in enumerate(spines):
         if i < len(names):
             spine.name = names[i]
