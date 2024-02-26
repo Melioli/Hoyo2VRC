@@ -3,793 +3,249 @@ from bpy.types import Operator
 import os
 import math
 import re
+from . import blender_utils, model_utils, armature_utils, shapekey_utils
+
+BlenderVersion = blender_utils.GetBlenderVersion()
 
 
 class ConvertHonkaiImpactPlayerCharacter(Operator):
-    '''Convert Model'''
-    bl_idname = 'hoyo2vrc.converthi3pc'
-    bl_label = 'OperatorLabel'
+    """Convert Model"""
+
+    bl_idname = "hoyo2vrc.converthi3pc"
+    bl_label = "OperatorLabel"
 
     def execute(self, context):
-        #Loli Boy Girl Male Lady
-        blender_version = bpy.app.version
-        Basetype = bpy.context.active_object.name
 
-        def GetOrientations(armature):
-                x_cord = 0
-                y_cord = 1
-                z_cord = 2
-                fbx = False
-                return x_cord, y_cord, z_cord, fbx    
-            
-        def getKeyBlock(keyName):
-            keyBlock=[ x for x in bpy.data.shape_keys if x.key_blocks.get(f'{keyName}')]
-            if keyBlock:
-                #print(keyBlock)
-                return keyBlock[-1].name
+        # Iterate over all objects in the scene
+        for obj in bpy.context.scene.objects:
+            # Check if the object is a valid model
+            if model_utils.IsValidModel(obj):
+                Model = obj
+                break
 
-        def ScaleModel():
-            for ob in bpy.context.scene.objects:
-                if ob.type == 'ARMATURE':
-                    ob.select_set(True)
-                    
-                    # Get the dimensions of the armature
-                    dimensions = ob.dimensions
+        # Identify the model
+        game, body_type, model_name = model_utils.IdentifyModel(Model.name)
+        print(game, body_type, model_name)
+        print(BlenderVersion)
 
-                    # Check the Z dimension and scale accordingly
-                    if dimensions.z > 100:
-                        bpy.ops.transform.resize(value=(0.01, 0.01, 0.01))
-                    elif dimensions.z > 10:
-                        bpy.ops.transform.resize(value=(0.1, 0.1, 0.1))
-                    elif 1 < dimensions.z < 3:
-                        pass  # Do nothing
-                    elif dimensions.z < 1:
-                        bpy.ops.transform.resize(value=(100, 100, 100))
-
-                    ob.select_set(False)
-
-        def RemoveEmpties():
-            for ob in bpy.context.scene.objects:
-                if ob.type == 'EMPTY':
-                    ob.select_set(True)
-                    Empties = ob
-                    bpy.data.objects.remove(Empties, do_unlink=True)
-            
-        def ClearRotations():
-            for ob in bpy.context.scene.objects:
-                if ob.type =='ARMATURE':
-                    ob.select_set(True) 
-                    ob.rotation_euler = [0, 0, 0]
-                    ob.select_set(False)
-
-        def CleanMeshes():
-            for obj in bpy.data.objects:
-                if obj.type == 'MESH' and (obj.name in ['Weapon_L', 'Weapon_R'] or 'lod' in obj.name.lower()):
-                    bpy.data.objects.remove(obj, do_unlink=True)
-                    
-        def CleanBones():
-            # Define the bone names to remove
-            bone_names = ["Bip001", "Bip002", "Bone_Eye_L_01", "Bone_Eye_R_01"]
-
-            # Get the armature object
-            armature = None
-            for obj in bpy.context.scene.objects:
-                if obj.type == "ARMATURE":
-                    armature = obj
-                    break
-
-            # Set the active object in the context
-            bpy.context.view_layer.objects.active = armature
-
-            # Switch to edit mode
-            bpy.ops.object.mode_set(mode="EDIT")
-
-            # Remove the bones
-            if armature is not None:
-                # Create a list of bones to remove
-                bones_to_remove = [bone for bone in armature.data.edit_bones if bone.name in bone_names]
-
-                # Remove the bones
-                for bone in bones_to_remove:
-                    armature.data.edit_bones.remove(bone)
-
-            # Switch back to pose mode
-            bpy.ops.object.mode_set(mode="OBJECT")
+        global armature
+        armature = armature_utils.GetArmature()
 
         def SetupArmature():
-                           
-            # Iterate over all objects in the scene
-            for obj in bpy.data.objects:
-                # Check if the object is an armature
-                if obj.type == 'ARMATURE':
-                    # Rename the armature
-                    obj.name = "Armature"
-                    armature = obj  # Save the armature object for later use
-                    
-                    
-            x_cord, y_cord, z_cord, fbx = GetOrientations(armature)
-            
+
+            # Rename the armature
+            armature.name = "Armature"
+
+            x_cord, y_cord, z_cord, fbx = model_utils.GetOrientations(armature)
+
             bpy.context.object.display_type = "WIRE"
             bpy.context.object.show_in_front = True
-                
+
             # Switch to edit mode
-            bpy.ops.object.mode_set(mode='EDIT')
+            blender_utils.ChangeMode("EDIT")
 
-            # Make Hips top parent and reparent other top bones to hips
-            if 'Hips' in armature.data.edit_bones:
-                hips = armature.data.edit_bones.get('Hips')
-                hips.parent = None
-                for bone in armature.data.edit_bones:
-                    if bone.parent is None:
-                        bone.parent = hips
-                        
-            # Find all spines
-            spines = [bone for bone in armature.data.edit_bones if re.search(r'(?<!_)spine\d*$', bone.name.lower())]
+            if context.scene.humanoid_armature_fix:
+                # Check if the first bone in the hierarchy is 'Hips'
+                if armature.data.edit_bones[0].name != "Hips":
+                    # Rename the first bone to 'Hips'
+                    armature.data.edit_bones[0].name = "Hips"
 
-            # Rename spines based on the number of spines
-            if len(spines) == 1:
-                spines[0].name = 'Spine'
-            elif len(spines) == 2:
-                spines[0].name = 'Spine'
-                spines[1].name = 'Chest'
-            elif len(spines) == 3:
-                spines[0].name = 'Spine'
-                spines[1].name = 'Chest'
-                spines[2].name = 'Upper Chest'
-            
-            # Hips bone should be fixed as per specification from the SDK code
-            if 'Hips' in armature.data.edit_bones:
-                if 'Spine' in armature.data.edit_bones:
-                    if 'Chest' in armature.data.edit_bones:
-                        if 'Left leg' in armature.data.edit_bones:
-                            if 'Right leg' in armature.data.edit_bones:
-                                hips = armature.data.edit_bones.get('Hips')
-                                spine = armature.data.edit_bones.get('Spine')
-                                chest = armature.data.edit_bones.get('Chest')
-                                upperchest = armature.data.edit_bones.get('Upper Chest')
-                                left_leg = armature.data.edit_bones.get('Left leg')
-                                right_leg = armature.data.edit_bones.get('Right leg')
-                                left_knee = armature.data.edit_bones.get('Left knee')
-                                right_knee = armature.data.edit_bones.get('Right knee')
-                                
+                armature_utils.SetHipAsParent(armature)
 
-                                # Fixing the hips
+                armature_utils.RenameSpines(armature, ["Spine", "Chest", "Upper Chest"])
 
-                                # Put Hips in the center of the leg bones
-                                hips.head[x_cord] = (right_leg.head[x_cord] + left_leg.head[x_cord]) / 2
+                bone_names = [
+                    "Hips",
+                    "Spine",
+                    "Chest",
+                    "Upper Chest",
+                    "Head",
+                    "Left leg",
+                    "Right leg",
+                    "Left knee",
+                    "Right knee",
+                ]
+                (
+                    hips,
+                    spine,
+                    chest,
+                    upperchest,
+                    head,
+                    left_leg,
+                    right_leg,
+                    left_knee,
+                    right_knee,
+                ) = armature_utils.GetBones(armature, bone_names).values()
 
-                                # Adjust the y-coordinate of the hip bone
-                                hips.head[y_cord] = (right_leg.head[y_cord] + left_leg.head[y_cord]) / 2
+                # Fixing the hips
+                armature_utils.FixHips(
+                    hips, right_leg, left_leg, spine, x_cord, y_cord, z_cord
+                )
 
-                                # Put Hips at 33% between spine and legs
-                                hips.head[z_cord] = left_leg.head[z_cord] + (spine.head[z_cord] - left_leg.head[z_cord]) * 0.33
+                armature_utils.FixSpine(spine, hips, x_cord, y_cord, z_cord)
+                armature_utils.FixChest(chest, spine, x_cord, y_cord, z_cord)
+                armature_utils.FixUpperChest(upperchest, chest, x_cord, y_cord, z_cord)
+                armature_utils.AdjustLegs(
+                    left_leg, right_leg, left_knee, right_knee, y_cord
+                )
+                armature_utils.StraightenHead(armature, head, x_cord, y_cord, z_cord)
+                armature_utils.FixMissingNeck(
+                    armature, chest, head, x_cord, y_cord, z_cord
+                )
+                armature_utils.SetBoneRollToZero(armature)
 
-                                # If Hips are below or at the leg bones, put them above
-                                if hips.head[z_cord] <= right_leg.head[z_cord]:
-                                    hips.head[z_cord] = right_leg.head[z_cord] + 0.1
-
-                                # Make Hips point straight up
-                                hips.tail[x_cord] = hips.head[x_cord]
-                                hips.tail[y_cord] = hips.head[y_cord]
-                                hips.tail[z_cord] = spine.head[z_cord]
-
-                                if hips.tail[z_cord] < hips.head[z_cord]:
-                                    hips.tail[z_cord] = hips.tail[z_cord] + -2
-                                
-                                # Fixing Spine    
-                                spine.head[x_cord] = hips.tail[x_cord]
-                                spine.head[y_cord] = hips.tail[y_cord]
-                                spine.head[z_cord] = hips.tail[z_cord]
-
-                                # Make Spine point straight up
-                                spine.tail[x_cord] = spine.head[x_cord]
-                                spine.tail[y_cord] = spine.head[y_cord]  # Align tail with head on y-axis
-                                spine.tail[z_cord] = spine.head[z_cord] + 0.065  # Adjust this value as needed
-
-                                # Fixing Chest
-                                chest.head[x_cord] = spine.tail[x_cord]
-                                chest.head[y_cord] = spine.tail[y_cord]
-                                chest.head[z_cord] = spine.tail[z_cord]
-
-                                # Make Chest point straight up
-                                chest.tail[x_cord] = chest.head[x_cord]
-                                chest.tail[y_cord] = chest.head[y_cord]  # Align tail with head on y-axis
-                                chest.tail[z_cord] = chest.head[z_cord] + 0.065  # Adjust this value as needed
-
-                                # Fixing UpperChest
-                                upperchest.head[x_cord] = chest.tail[x_cord]
-                                upperchest.head[y_cord] = chest.tail[y_cord]
-                                upperchest.head[z_cord] = chest.tail[z_cord]
-
-                                # Make UpperChest point straight up
-                                upperchest.tail[x_cord] = upperchest.head[x_cord]
-                                upperchest.tail[y_cord] = upperchest.head[y_cord]  # Align tail with head on y-axis
-                                upperchest.tail[z_cord] = upperchest.head[z_cord] + 0.1  # Adjust this value as needed
-                                
-                                
-                                # Make legs bend very slightly forward
-                                print (f"Before: {left_leg.tail[y_cord]}")
-                                left_leg.tail[y_cord] += -0.015  # Move tail of leg forward
-                                left_knee.head[y_cord] += -0.015  # Move head of knee forward
-                                print (f"After: {left_knee.head[y_cord]}")
-                                
-                                print(f"Before: {right_knee.head[y_cord]}")
-                                right_leg.tail[y_cord] += -0.015  # Move tail of leg forward
-                                right_knee.head[y_cord] += -0.015  # Move head of knee forward
-                                print(f"After: {right_knee.head[y_cord]}")
-                                    
-            # Straighten up the head bone
-            if 'Head' in armature.data.edit_bones:
-                head = armature.data.edit_bones.get('Head')
-                head.tail[x_cord] = head.head[x_cord]
-                head.tail[y_cord] = head.head[y_cord]
-                if head.tail[z_cord] < head.head[z_cord]:
-                    head.tail[z_cord] = head.head[z_cord] + 0.1
-                    
-            # Fix missing neck
-            if 'Neck' not in armature.data.edit_bones:
-                if 'Chest' in armature.data.edit_bones:
-                    if 'Head' in armature.data.edit_bones:
-                        neck = armature.data.edit_bones.new('Neck')
-                        chest = armature.data.edit_bones.get('Chest')
-                        head = armature.data.edit_bones.get('Head')
-                        neck.head = chest.tail
-                        neck.tail = head.head
-
-                        if neck.head[z_cord] == neck.tail[z_cord]:
-                            neck.tail[z_cord] += 0.1
-                            
-            
-            # Iterate over all bones in the armature
-            for bone in armature.data.edit_bones:
-                # Set the roll of the bone to 0
-                bone.roll = 0
-            
-            # Switch back to object mode
-            bpy.ops.object.mode_set(mode='OBJECT')
+            blender_utils.ChangeMode("OBJECT")
 
         def GenShapekey():
-           # Check if the required shape keys are present
-            if getKeyBlock("Mouth_A01") is None or getKeyBlock("Mouth_O01") is None or getKeyBlock("Mouth_Angry02") is None:
-                print("Required shape keys not found.")
+
+            blender_utils.SelectObject("Face")
+
+            # Check if the required shape keys are present
+            if (
+                shapekey_utils.getKeyBlock("Mouth_A01") is None
+                or shapekey_utils.getKeyBlock("Mouth_O01") is None
+                or shapekey_utils.getKeyBlock("Mouth_Angry02") is None
+            ):
+                print(
+                    "Required shape keys are not present. Skipping shape key generation."
+                )
                 return
-
-            # Generate A Shape Key
-            bpy.ops.object.select_all(action='DESELECT')
-            bpy.data.objects['Face'].select_set(True)
-            bpy.context.view_layer.objects.active = bpy.data.objects['Face']
-            bpy.data.shape_keys[getKeyBlock("Mouth_A01")].key_blocks["Mouth_A01"].value = 1.0
-            bpy.data.objects['Face'].shape_key_add(name="A", from_mix=True)
-            bpy.data.shape_keys[getKeyBlock("Mouth_A01")].key_blocks["Mouth_A01"].value = 0.0
-
-            # Generate O Shape Key
-            bpy.ops.object.select_all(action='DESELECT')
-            bpy.data.objects['Face'].select_set(True)
-            bpy.context.view_layer.objects.active = bpy.data.objects['Face']
-            bpy.data.shape_keys[getKeyBlock("Mouth_O01")].key_blocks["Mouth_O01"].value = 1.0
-            bpy.data.objects['Face'].shape_key_add(name="O", from_mix=True)
-            bpy.data.shape_keys[getKeyBlock("Mouth_O01")].key_blocks["Mouth_O01"].value = 0.0
-
-            # Generate CH Shape Key
-            bpy.ops.object.select_all(action='DESELECT')
-            bpy.data.objects['Face'].select_set(True)
-            bpy.context.view_layer.objects.active = bpy.data.objects['Face']
-            bpy.data.shape_keys[getKeyBlock("Mouth_Angry02")].key_blocks["Mouth_Angry02"].value = 1.0
-            bpy.data.objects['Face'].shape_key_add(name="CH", from_mix=True)
-            bpy.data.shape_keys[getKeyBlock("Mouth_Angry02")].key_blocks["Mouth_Angry02"].value = 0.0
 
             # Generate additional shape keys
             shapekey_data = {
-                'vrc.v_aa': [('A', 0.9998)],
-                'vrc.v_ch': [('CH', 0.9996)],
-                'vrc.v_dd': [('A', 0.3), ('CH', 0.7)],
-                'vrc.v_e': [('CH', 0.7), ('O', 0.3)],
-                'vrc.v_ff': [('A', 0.2), ('CH', 0.4)],
-                'vrc.v_ih': [('A', 0.5), ('CH', 0.2)],
-                'vrc.v_kk': [('A', 0.7), ('CH', 0.4)],
-                'vrc.v_nn': [('A', 0.2), ('CH', 0.7)],
-                'vrc.v_oh': [('A', 0.2), ('O', 0.8)],
-                'vrc.v_ou': [('O', 0.9994)],
-                'vrc.v_pp': [('A', 0.0004), ('O', 0.0004)],
-                'vrc.v_rr': [('CH', 0.5), ('O', 0.3)],
-                'vrc.v_sil': [('A', 0.0002), ('CH', 0.0002)],
-                'vrc.v_ss': [('CH', 0.8)],
-                'vrc.v_th': [('A', 0.4), ('O', 0.15)],
+                "A": [("Mouth_A01", 1.0)],
+                "O": [("Mouth_O01", 1.0)],
+                "CH": [("Mouth_Angry02", 1.0)],
+                "vrc.v_aa": [("A", 0.9998)],
+                "vrc.v_ch": [("CH", 0.9996)],
+                "vrc.v_dd": [("A", 0.3), ("CH", 0.7)],
+                "vrc.v_e": [("CH", 0.7), ("O", 0.3)],
+                "vrc.v_ff": [("A", 0.2), ("CH", 0.4)],
+                "vrc.v_ih": [("A", 0.5), ("CH", 0.2)],
+                "vrc.v_kk": [("A", 0.7), ("CH", 0.4)],
+                "vrc.v_nn": [("A", 0.2), ("CH", 0.7)],
+                "vrc.v_oh": [("A", 0.2), ("O", 0.8)],
+                "vrc.v_ou": [("O", 0.9994)],
+                "vrc.v_pp": [("A", 0.0004), ("O", 0.0004)],
+                "vrc.v_rr": [("CH", 0.5), ("O", 0.3)],
+                "vrc.v_sil": [("A", 0.0002), ("CH", 0.0002)],
+                "vrc.v_ss": [("CH", 0.8)],
+                "vrc.v_th": [("A", 0.4), ("O", 0.15)],
             }
 
             for shapekey_name, mix in shapekey_data.items():
-                # Reset all shape keys
-                for key in bpy.data.objects['Face'].data.shape_keys.key_blocks:
-                    key.value = 0
+                shapekey_utils.GenerateShapeKey("Face", shapekey_name, mix)
 
-                # Set the value of the shape keys in the mix
-                for key_name, value in mix:
-                    if getKeyBlock(key_name) is not None:
-                        bpy.data.shape_keys[getKeyBlock(key_name)].key_blocks[key_name].value = value
+            blender_utils.ChangeMode("OBJECT")
 
-                # Add a new shape key from the mix
-                bpy.data.objects['Face'].shape_key_add(name=shapekey_name, from_mix=True)
-                for key_name, _ in mix:
-                    if getKeyBlock(key_name) is not None:
-                        bpy.data.shape_keys[getKeyBlock(key_name)].key_blocks[key_name].value = 0
-
-            bpy.ops.object.select_all(action='DESELECT')
-            
         def FixEyes():
-            ob = bpy.data.objects['Armature']
-            armature = ob.data
-            bpy.data.objects['Armature'].select_set(True)
-            bpy.context.view_layer.objects.active = bpy.data.objects['Armature']
-            bpy.ops.object.mode_set(mode='EDIT')
-            bpy.ops.armature.select_all(action='DESELECT')
-
-            def attacheyes(foot, toe):
-                if foot in armature.edit_bones and toe in armature.edit_bones:
-                    foot_head = armature.edit_bones[foot].head
-                    toe_head = armature.edit_bones[toe].head
-                    foot_tail = armature.edit_bones[foot].tail
-
-                    foot_tail.x = foot_head.x
-                    foot_tail.y = foot_head.y
-                    foot_tail.z = toe_head.z + 0.12
-
-            def move_eyebone(bone):
-                bone.select = True
-                bone.select_head = True
-                bone.select_tail = True
-
-            if "Eye_R" in armature.edit_bones:
-                attacheyes('Eye_R', 'Head')
-                move_eyebone(armature.edit_bones["Eye_R"])
-                if blender_version >= (3, 6, 2):
-                    bpy.ops.transform.translate(value=(0, 0.035, 0), orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=True, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=True, use_snap_edit=True, use_snap_nonedit=True, use_snap_selectable=False)
-                else: # 3.3.0 - 3.6.1
-                    bpy.ops.transform.translate(value=(0, 0.035, 0), orient_axis_ortho='X', orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=True, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=True, use_snap_edit=True, use_snap_nonedit=True, use_snap_selectable=False)
-
-                bpy.ops.armature.select_all(action='DESELECT')
-            else:
-                print("Eye_R not found. Probably using an OldFace Model")
-
-            if "Eye_L" in armature.edit_bones:
-                attacheyes('Eye_L', 'Head')
-                move_eyebone(armature.edit_bones["Eye_L"])
-                if blender_version >= (3, 6, 2):
-                    bpy.ops.transform.translate(value=(0, 0.035, 0), orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=True, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=True, use_snap_edit=True, use_snap_nonedit=True, use_snap_selectable=False)
-                else: # 3.3.0 - 3.6.1
-                    bpy.ops.transform.translate(value=(0, 0.035, 0), orient_axis_ortho='X', orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(True, True, True), mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, snap=True, snap_elements={'INCREMENT'}, use_snap_project=False, snap_target='CLOSEST', use_snap_self=True, use_snap_edit=True, use_snap_nonedit=True, use_snap_selectable=False)
-                    
-                bpy.ops.armature.select_all(action='DESELECT')
-            else:
-                print("Eye_L not found. Probably using an OldFace Model")
-
-            # Get the armature object and enter edit mode
-            armature_obj = bpy.data.objects['Armature']
-            armature_obj.select_set(True)
-            bpy.context.view_layer.objects.active = armature_obj
-            bpy.ops.object.mode_set(mode='EDIT')
-
-            # Exit edit mode
-            bpy.ops.object.mode_set(mode='OBJECT')
-            
-        def FixVRCLite():
-            ob = bpy.data.objects["Armature"]
-            armature = ob.data
-            bpy.data.objects["Armature"].select_set(True)
-            bpy.context.view_layer.objects.active = bpy.data.objects["Armature"]
-            bpy.ops.object.mode_set(mode="EDIT")
+            armature.select_set(True)
+            blender_utils.ChangeMode("EDIT")
             bpy.ops.armature.select_all(action="DESELECT")
 
-            def attachfeets(foot, toe, exact_match=False):
-                if exact_match:
-                    foot_bone = next((bone for bone in bpy.context.object.data.bones if foot == bone.name), None)
-                    toe_bone = next((bone for bone in bpy.context.object.data.bones if toe == bone.name), None)
-                else:
-                    foot_bone = next((bone for bone in bpy.context.object.data.bones if ContainsName(foot)), None)
-                    toe_bone = next((bone for bone in bpy.context.object.data.bones if ContainsName(toe)), None)
+            for eye_bone_name in ["Eye_L", "Eye_R"]:
+                armature_utils.MoveEyes(armature, eye_bone_name, BlenderVersion)
 
-                if foot_bone and toe_bone:
-                    armature.edit_bones[foot_bone.name].tail.x = armature.edit_bones[toe_bone.name].head.x
-                    armature.edit_bones[foot_bone.name].tail.y = armature.edit_bones[toe_bone.name].head.y
-                    armature.edit_bones[foot_bone.name].tail.z = armature.edit_bones[toe_bone.name].head.z
-                else:
-                    print("Could not find matching bones.")
-                            
-            def ContainsName(name):
-                return any(name in bone.name for bone in bpy.context.object.data.bones)
-                  
-            if bpy.context.scene.connect_chest_to_neck:
-                attachfeets("Chest", "Neck", True)
+            bpy.ops.armature.select_all(action="DESELECT")
+
+            # Exit edit mode
+            blender_utils.ChangeMode("OBJECT")
+
+        def ConnectArmature():
+
+            bone_pairs = [
+                ("Left knee", "Left ankle"),
+                ("Right knee", "Right ankle"),
+                ("Right shoulder", "Right arm"),
+                ("Left shoulder", "Left arm"),
+                ("Left leg", "Left knee"),
+                ("Right leg", "Right knee"),
+                ("Neck", "Head"),
+                ("UpperArmTwist_L_01", "UpperArmTwist_L_02"),
+                ("UpperArmTwist_R_01", "UpperArmTwist_R_02"),
+                ("LUpperArmTwist", "LUpperArmTwist1"),
+                ("RUpperArmTwist", "RUpperArmTwist1"),
+                ("L_UpperArm_Twist_01", "L_UpperArm_Twist_02"),
+                ("R_UpperArm_Twist_01", "R_UpperArm_Twist_02"),
+            ]
+
+            if bpy.context.scene.connect_twist_to_limbs:
+                bone_pairs.append(("UpperArmTwist_R_02", "Right elbow"))
+                bone_pairs.append(("UpperArmTwist_L_02", "Left elbow"))
+                bone_pairs.append(("Twist_R", "Right wrist"))
+                bone_pairs.append(("Twist_L", "Left wrist"))
+                bone_pairs.append(("Elbow_L", "Left wrist"))
+                bone_pairs.append(("Elbow_R", "Right wrist"))
+                bone_pairs.append(("R_ForeArm_Twist_02", "Right wrist"))
+                bone_pairs.append(("L_ForeArm_Twist_02", "Left wrist"))
+                bone_pairs.append(("L_Calf_Twist_02", "Left ankle"))
+                bone_pairs.append(("R_Calf_Twist_02", "Right ankle"))
+                bone_pairs.append(("Knee_L", "Left ankle"))
+                bone_pairs.append(("Knee_R", "Right ankle"))
+                bone_pairs.append(("Right arm", "Elbow_R"))
+                bone_pairs.append(("Left arm", "Elbow_L"))
+                bone_pairs.append(("Right leg", "Knee_R"))
+                bone_pairs.append(("Left leg", "Knee_L"))
             else:
-                attachfeets("Upper Chest", "Neck", True)
-                
-            attachfeets("Left knee", "Left ankle", True)
-            attachfeets("Right knee", "Right ankle", True)    
-            attachfeets("Right arm", "Right elbow", True)
-            attachfeets("Left arm", "Left elbow", True)
-            attachfeets("Right shoulder", "Right arm", True)
-            attachfeets("Left shoulder", "Left arm", True)
-            attachfeets("Right elbow", "Right wrist", True)
-            attachfeets("Left elbow", "Left wrist", True)
-            attachfeets("Left leg", "Left knee", True)
-            attachfeets("Right leg", "Right knee", True)
-            attachfeets("Neck", "Head", True)
-            
-            if ContainsName("UpperArmTwist_L_01") and ContainsName("UpperArmTwist_L_02"):
-                attachfeets("UpperArmTwist_L_01", "UpperArmTwist_L_02", True)
+                bone_pairs.append(("Right arm", "Right elbow"))
+                bone_pairs.append(("Left arm", "Left elbow"))
+                bone_pairs.append(("Right elbow", "Right wrist"))
+                bone_pairs.append(("Left elbow", "Left wrist"))
 
-            if ContainsName("UpperArmTwist_R_01") and ContainsName("UpperArmTwist_R_02"):
-                attachfeets("UpperArmTwist_R_01", "UpperArmTwist_R_02", True)
-                
-            if ContainsName("LUpperArmTwist") and ContainsName("LUpperArmTwist1"):
-                attachfeets("LUpperArmTwist", "LUpperArmTwist1", True)
-            
-            if ContainsName("RUpperArmTwist") and ContainsName("RUpperArmTwist1"):
-                attachfeets("RUpperArmTwist", "RUpperArmTwist1", True)
-                
-            if ContainsName("L_UpperArm_Twist_01") and ContainsName("L_UpperArm_Twist_02"):
-                attachfeets("L_UpperArm_Twist_01", "L_UpperArm_Twist_02", True)
-            
-            if ContainsName("R_UpperArm_Twist_01") and ContainsName("R_UpperArm_Twist_02"):
-                attachfeets("R_UpperArm_Twist_01", "R_UpperArm_Twist_02", True)
-            
-            if ContainsName("L_UpperArm_Twist_02"):
-                attachfeets("L_UpperArm_Twist_02", "Left elbow", True)
-            
-            if ContainsName("R_UpperArm_Twist_02"):
-                attachfeets("R_UpperArm_Twist_02", "Right elbow", True)
-            
-            
-                
-                
-            bpy.ops.object.mode_set(mode="OBJECT")
-            
-        def RenameBones():
-            
-            def StripName(name):
-                """Remove any prefix in the format 'Name_C(number)_' or 'Name_' from a name."""
-                return re.sub(r'^\w+_C\d+_|^[^_]+_', '', name)
-            
-            # Define the bone names and new names
-            bone_names = [
-                "Pelvis",
-                "LThigh",
-                "RThigh",
-                "LCalf",
-                "RCalf",
-                "LFoot",
-                "RFoot",
-                "LToe0",
-                "RToe0",
-                "LClavicle",
-                "RClavicle",
-                "LUpperArm",
-                "RUpperArm",
-                "LForearm",
-                "RForearm",
-                "LHand",
-                "RHand",
-                "LFinger5",
-                "LFinger51",
-                "LFinger52",
-                "LFinger1",
-                "LFinger11",
-                "LFinger12",
-                "LFinger2",
-                "LFinger21",
-                "LFinger22",
-                "LFinger3",
-                "LFinger31",
-                "LFinger32",
-                "LFinger4",
-                "LFinger41",
-                "LFinger42",
-                "RFinger5",
-                "RFinger51",
-                "RFinger52",
-                "RFinger1",
-                "RFinger11",
-                "RFinger12",
-                "RFinger2",
-                "RFinger21",
-                "RFinger22",
-                "RFinger3",
-                "RFinger31",
-                "RFinger32",
-                "RFinger4",
-                "RFinger41",
-                "RFinger42",
-                
-            ]
-            new_names = [
-                "Hips",
-                "Left leg",
-                "Right leg",
-                "Left knee",
-                "Right knee",
-                "Left ankle",
-                "Right ankle",
-                "Left toe",
-                "Right toe",
-                "Left shoulder",
-                "Right shoulder",
-                "Left arm",
-                "Right arm",
-                "Left elbow",
-                "Right elbow",
-                "Left wrist",
-                "Right wrist",
-                "Thumb1_L",
-                "Thumb2_L",
-                "Thumb3_L",
-                "IndexFinger1_L",
-                "IndexFinger2_L",
-                "IndexFinger3_L", 
-                "MiddleFinger1_L",
-                "MiddleFinger2_L",
-                "MiddleFinger3_L",
-                "RingFinger1_L",
-                "RingFinger2_L",
-                "RingFinger3_L",
-                "LittleFinger1_L",
-                "LittleFinger2_L",
-                "LittleFinger3_L",
-                "Thumb1_R",
-                "Thumb2_R",
-                "Thumb3_R",
-                "IndexFinger1_R",
-                "IndexFinger2_R",
-                "IndexFinger3_R", 
-                "MiddleFinger1_R",
-                "MiddleFinger2_R",
-                "MiddleFinger3_R",
-                "RingFinger1_R",
-                "RingFinger2_R",
-                "RingFinger3_R",
-                "LittleFinger1_R",
-                "LittleFinger2_R",
-                "LittleFinger3_R",           
-            ]
-            starts_with = [
-                ('_', ''),
-                ('ValveBiped_', ''),
-                ('Valvebiped_', ''),
-                ('Bip1_', 'Bip_'),
-                ('Bip01_', 'Bip_'),
-                ('Bip001_', 'Bip_'),
-                ('Bip001', ''),
-                ('Bip01', ''),
-                ('Bip02_', 'Bip_'),
-                ('Character1_', ''),
-                ('HLP_', ''),
-                ('JD_', ''),
-                ('JU_', ''),
-                ('Armature|', ''),
-                ('Bone_', ''),
-                ('C_', ''),
-                ('Cf_S_', ''),
-                ('Cf_J_', ''),
-                ('G_', ''),
-                ('Joint_', ''),
-                ('Def_C_', ''),
-                ('Def_', ''),
-                ('DEF_', ''),
-                ('Chr_', ''),
-                ('Chr_', ''),
-                ('B_', ''),
-            ]
-            ends_with = [
-                ('_Bone', ''),
-                ('_Bn', ''),
-                ('_Le', '_L'),
-                ('_Ri', '_R'),
-                ('_', ''),
-            ]
-            replaces = [
-                (' ', '_'),
-                ('-', '_'),
-                ('.', '_'),
-                (':', '_'),
-                ('____', '_'),
-                ('___', '_'),
-                ('__', '_'),
-                ('_Le_', '_L_'),
-                ('_l', '_L'),
-                ('_Ri_', '_R_'),
-                ('_r', '_R'),
-                ('_m', '_M'),
-                ('LEFT', 'Left'),
-                ('RIGHT', 'Right'),
-                ('all', 'All'),
-                ('finger', 'Finger'),
-                ('part', 'Part'),
-                ('Eye_L_End', 'Eye_L'),
-                ('Eye_R_End', 'Eye_R'),
-                
-            ]
-            
-            armature = None
-            for obj in bpy.context.scene.objects:
-                if obj.type == "ARMATURE":
-                    armature = obj
-                    break
-             
-            if armature is not None:
-                for bone in armature.pose.bones:
-                    bone.name = StripName(bone.name)
-                
-            if armature is not None:
-                for bone in armature.pose.bones:
-                    bone.name = re.sub(r"(?<=\w)([A-Z])", r" \1", bone.name).title().replace(' ', '')
+            if bpy.context.scene.connect_chest_to_neck:
+                bone_pairs.append(("Chest", "Neck"))
+            else:
+                bone_pairs.append(("Upper Chest", "Neck"))
 
-                    for old, new in starts_with:
-                        if bone.name.startswith(old):
-                            bone.name = bone.name.replace(old, new, 1)
-                            break
-                    for old, new in ends_with:
-                        if bone.name.endswith(old):
-                            bone.name = bone.name[:len(bone.name)-len(old)] + new
-                    for old, new in replaces:
-                        bone.name = bone.name.replace(old, new)
+            blender_utils.ChangeMode("EDIT")
+            armature_utils.ToggleArmatureSelection(armature, select=False)
 
-                    if bone.name in bone_names:
-                        bone.name = new_names[bone_names.index(bone.name)]
+            for bone_name1, bone_name2 in bone_pairs:
+                armature_utils.attachbones(
+                    armature, bone_name1, bone_name2, exact_match=True
+                )
+
+            blender_utils.ChangeMode("OBJECT")
 
         def ReparentBones():
-            # Get the armature object
-            armature = None
-            for obj in bpy.context.scene.objects:
-                if obj.type == 'ARMATURE':
-                    armature = obj
-                    break
 
-            # Check if an armature was found
-            if armature is None:
-                print("No armature found in the scene")
-                return
+            blender_utils.ChangeMode("EDIT")
 
-            # Go into edit mode
-            bpy.ops.object.mode_set(mode='EDIT')
+            # Define bone pairs to reparent
+            bone_pairs = [
+                ("Twist_L", "Left elbow"),
+                ("Twist_R", "Right elbow"),
+                ("UpperArmTwist_L", "Left arm"),
+                ("UpperArmTwist_R", "Right arm"),
+                ("LUpperArmTwist", "Left arm"),
+                ("RUpperArmTwist", "Right arm"),
+                ("L_UpperArm_Twist", "Left arm"),
+                ("R_UpperArm_Twist", "Right arm"),
+            ]
 
-            # Get the left and right elbow bones
-            left_elbow = armature.data.edit_bones.get('Left elbow')  # Replace 'LeftElbow' with the name of your left elbow bone
-            right_elbow = armature.data.edit_bones.get('Right elbow')  # Replace 'RightElbow' with the name of your right elbow bone
-            left_arm = armature.data.edit_bones.get('Left arm')  # Replace 'LeftArm' with the name of your left arm bone
-            right_arm = armature.data.edit_bones.get('Right arm')  # Replace 'RightArm' with the name of your right arm bone
+            # Reparent bones
+            for bone_name, parent_name in bone_pairs:
+                armature_utils.ReparentBone(armature, bone_name, parent_name)
 
-            # Iterate over all the bones in the armature
-            for bone in armature.data.edit_bones:
-                # If the bone name contains 'Bone_Twist_L', reparent it to the left elbow
-                if bone.name == 'Twist_L' and left_elbow is not None:
-                    bone.parent = left_elbow
+            blender_utils.ChangeMode("OBJECT")
 
-                # If the bone name contains 'Bone_Twist_R', reparent it to the right elbow
-                if bone.name == 'Twist_R' and right_elbow is not None:
-                    bone.parent = right_elbow
-                    
-                # If the bone name contains 'Bone_Twist_R', reparent it to the right elbow
-                elif 'UpperArmTwist_L' in bone.name and left_arm is not None:
-                    bone.parent = left_arm
-                    
-                # If the bone name contains 'Bone_Twist_R', reparent it to the right elbow
-                elif 'UpperArmTwist_R' in bone.name and right_arm is not None:
-                    bone.parent = right_arm
-                
-                # If the bone name contains 'Bone_Twist_R', reparent it to the right elbow
-                elif 'LUpperArmTwist' in bone.name and left_arm is not None:
-                    bone.parent = left_arm
-                    
-                # If the bone name contains 'Bone_Twist_R', reparent it to the right elbow
-                elif 'RUpperArmTwist' in bone.name and right_arm is not None:
-                    bone.parent = right_arm
-                    
-                # If the bone name contains 'Bone_Twist_R', reparent it to the right elbow
-                elif 'L_UpperArm_Twist' in bone.name and left_arm is not None:
-                    bone.parent = left_arm
-                    
-                # If the bone name contains 'Bone_Twist_R', reparent it to the right elbow
-                elif 'R_UpperArm_Twist' in bone.name and right_arm is not None:
-                    bone.parent = right_arm
-                    
-            # Go back to object mode
-            bpy.ops.object.mode_set(mode='OBJECT')
-         
-        def MergeFaceByDistance():
-            # Get the "Face" mesh
-            face_obj = bpy.data.objects.get("Face")
-            if face_obj is None:
-                print("Face mesh not found")
-                return
-
-            # Deselect all objects
-            bpy.ops.object.select_all(action='DESELECT')
-
-            # Select the meshes to merge
-            meshes_to_merge = ["EyeShape", "Eyebrow"]
-            for obj_name in meshes_to_merge:
-                obj = bpy.data.objects.get(obj_name)
-                if obj is not None:
-                    obj.select_set(True)
-                else:
-                    print(f"Object {obj_name} not found")
-
-            # Also select "Face" because it's the mesh we want to join into
-            face_obj.select_set(True)
-
-            # Set the active object to "Face"
-            bpy.context.view_layer.objects.active = face_obj
-
-            # Join the selected objects into the active object
-            bpy.ops.object.join()
-
-            # Ensure we're in object mode
-            bpy.ops.object.mode_set(mode='OBJECT')
-            
-            # Select the "Face" mesh
-            bpy.ops.object.select_all(action='DESELECT')
-            face_obj.select_set(True)
-
-            # Set the active object to "Face"
-            bpy.context.view_layer.objects.active = face_obj
-
-            # Switch to edit mode
-            bpy.ops.object.mode_set(mode='EDIT')
-
-            # Select all vertices
-            bpy.ops.mesh.select_all(action='SELECT')
-
-            # Merge vertices by distance
-            bpy.ops.mesh.remove_doubles(threshold=0.00001)  # Reduce the merge distance
-            
-            # Deselect all vertices
-            bpy.ops.mesh.select_all(action='DESELECT')
-
-            # Switch back to object mode
-            bpy.ops.object.mode_set(mode='OBJECT')
-                        
-        def RequestMeshMerge():
-            if bpy.context.scene.merge_all_meshes:
-                # User checked "Merge All Meshes", so merge all meshes
-
-                # Deselect all objects
-                bpy.ops.object.select_all(action='DESELECT')
-
-                # Select all mesh objects
-                mesh_objects = [obj for obj in bpy.data.objects if obj.type == 'MESH']
-                for obj in mesh_objects:
-                    obj.select_set(True)
-
-                # Set the active object to "Body" if it exists, otherwise use the first mesh object
-                body_object = bpy.data.objects.get("Body")
-                if body_object is not None:
-                    bpy.context.view_layer.objects.active = body_object
-                elif mesh_objects:
-                    bpy.context.view_layer.objects.active = mesh_objects[0]
-
-                # Join the selected objects into the active object
-                bpy.ops.object.join()
-
-                # Rename the active object to "Body"
-                bpy.context.active_object.name = "Body"
-            else:
-                # User unchecked "Merge All Meshes", so do nothing
-                pass
-            
         def Run():
-            RemoveEmpties()
-            ScaleModel()
-            ClearRotations()
-            ScaleModel()
-            CleanMeshes()
-            CleanBones()
-            RenameBones()
+            model_utils.RemoveEmpties()
+            model_utils.ScaleModel()
+            model_utils.ClearRotations()
+            model_utils.ScaleModel()
+            model_utils.CleanMeshes()
+            armature_utils.CleanBones()
+            armature_utils.RenameBones(game, armature)
             SetupArmature()
             GenShapekey()
             FixEyes()
-            FixVRCLite()
+            if bpy.context.scene.reconnect_armature:
+                ConnectArmature()
             ReparentBones()
-            MergeFaceByDistance()
-            RequestMeshMerge()
+            model_utils.MergeFaceByDistance("Face", ["Eyebrow", "EyeShape"], "A")
+            model_utils.MergeMeshes()
 
         Run()
-        
-        return {'FINISHED'}
+
+        return {"FINISHED"}
