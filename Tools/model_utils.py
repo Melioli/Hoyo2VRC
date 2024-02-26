@@ -183,7 +183,7 @@ def MergeFaceByDistance(target_obj_name, obj_names_to_merge, shapekey_name):
     bpy.ops.mesh.select_all(action="SELECT")
 
     # Merge vertices by distance
-    bpy.ops.mesh.remove_doubles(threshold=0.00001)
+    bpy.ops.mesh.remove_doubles(threshold=0.0001)
 
     # Deselect all vertices
     bpy.ops.mesh.select_all(action="DESELECT")

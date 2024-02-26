@@ -96,10 +96,9 @@ class Hoyo2VRCModelPanel(Panel):
                 operator = row.operator(
                     operator=operator_func, text=display_text, icon="PLAY"
                 )
-                if game != "NPC":
-                    operator.game = game
-                    operator.body_type = body_type
-                    operator.model_name = model_name
+                operator.game = game
+                operator.body_type = body_type
+                operator.model_name = model_name
 
             elif game == "NPC":
                 row.label(text="NPC is currently not supported", icon="ERROR")

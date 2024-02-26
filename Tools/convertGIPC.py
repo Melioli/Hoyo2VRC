@@ -143,7 +143,37 @@ class ConvertGenshinPlayerCharacter(Operator):
 
         def GenShapekey():
 
+            # Check if 'Face' object exists
+            if "Face" not in bpy.data.objects:
+                print("Face object does not exist. Skipping shape key generation.")
+                return
+
             blender_utils.SelectObject("Face")
+
+            # Check if the required shape keys are present
+            required_shape_keys = ["Mouth_A01", "Mouth_Fury01", "Mouth_Angry02"]
+            fallback_shapekeys = [
+                ("Mouth_Fury01", "Mouth_Open01", 0.5),
+            ]
+
+            fallback_dict = {key: value for key, value, _ in fallback_shapekeys}
+
+            for i, key in enumerate(required_shape_keys):
+                if shapekey_utils.getKeyBlock(key) is None:
+                    # Check if there is a fallback shape key
+                    if (
+                        key in fallback_dict
+                        and shapekey_utils.getKeyBlock(fallback_dict[key]) is not None
+                    ):
+                        required_shape_keys[i] = fallback_dict[key]
+                        print(
+                            f"Replaced missing shape key {key} with fallback {fallback_dict[key]}"
+                        )
+                    else:
+                        print(
+                            f"Required shape key {key} is not present and no fallback available. Skipping shape key generation."
+                        )
+                        return
 
             # Generate additional shape keys
             shapekey_data = {
@@ -167,14 +197,36 @@ class ConvertGenshinPlayerCharacter(Operator):
                 "vrc.v_th": [("A", 0.4), ("O", 0.15)],
             }
 
-            fallback_shapekeys = [
-                ("Mouth_Fury01", "Mouth_Open01", 0.5),
-            ]
-
             for shapekey_name, mix in shapekey_data.items():
-                shapekey_utils.GenerateShapeKey(
-                    "Face", shapekey_name, mix, fallback_shapekeys
-                )
+                new_mix = []
+                for key, value in mix:
+                    if shapekey_utils.getKeyBlock(key) is None:
+                        # Look for a fallback shape key
+                        if (
+                            key in fallback_dict
+                            and shapekey_utils.getKeyBlock(fallback_dict[key])
+                            is not None
+                        ):
+                            new_key = fallback_dict[key]
+                            new_mix.append((new_key, value))
+                            print(
+                                f"Replaced missing shape key {key} with fallback {new_key}"
+                            )
+                        else:
+                            print(
+                                f"Skipping shape key {key} due to no fallback available."
+                            )
+                    else:
+                        new_mix.append((key, value))
+
+                if new_mix:
+                    shapekey_utils.GenerateShapeKey(
+                        "Face", shapekey_name, new_mix, fallback_shapekeys
+                    )
+                else:
+                    print(
+                        f"Skipping generation of {shapekey_name} due to missing shape keys."
+                    )
 
             blender_utils.ChangeMode("OBJECT")
 
