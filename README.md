@@ -24,11 +24,9 @@
 
 - **Built in FBX Importer/Exporter**: Addons like BetterFBX are not needed anymore.
 - **Built-in support for [HoyoToon](https://github.com/Melioli/HoyoToon)**: Your models will always be in the perfect state for use with **[HoyoToon](https://github.com/Melioli/HoyoToon)**.
-- **Automatic conversion**: Raw datamined assets are automatically converted to VRChat avatars.
+- **Automated Conversion**: The add-on automatically transforms raw datamined assets into VRChat avatars. Detailed information about the fixes and features implemented by the conversion buttons can be found in our [documentation](https://docs.hoyotoon.com/Hoyo2VRC/Features).
 - **Time-saving fixes**: The add-on applies numerous fixes, saving you approximately 20 minutes of manual work by doing it in mere seconds.
 - **Correct importing**: Models are imported with the perfect settings that you'd normally have to set yourself in BetterFBX.
-
-The current fixes and features that the Convert buttons do can be found in the [docs](https://docs.hoyotoon.com/Hoyo2VRC/Features)
 
 ## Contact
 
