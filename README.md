@@ -22,6 +22,7 @@
 
 ## Features
 
+- **Support for Hoyoverse Models**: The addon is compatible with models from Honkai Impact (Part 1 and 2), Genshin Impact, and Honkai Star Rail.
 - **Built in FBX Importer/Exporter**: Addons like BetterFBX are not needed anymore.
 - **Built-in support for [HoyoToon](https://github.com/Melioli/HoyoToon)**: Your models will always be in the perfect state for use with **[HoyoToon](https://github.com/Melioli/HoyoToon)**.
 - **Automated Conversion**: The add-on automatically transforms raw datamined assets into VRChat avatars. Detailed information about the fixes and features implemented by the conversion buttons can be found in our [documentation](https://docs.hoyotoon.com/Hoyo2VRC/Features).
