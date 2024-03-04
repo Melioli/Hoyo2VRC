@@ -10,33 +10,37 @@ def getKeyBlock(keyName):
 
 
 def GenerateShapeKey(object_name, shapekey_name, mix, fallback_shapekeys=None):
-    # Reset all shape keys
-    for key in bpy.data.objects[object_name].data.shape_keys.key_blocks:
-        key.value = 0
-
     # Set the value of the shape keys in the mix
     for key_name, value in mix:
-        if getKeyBlock(key_name) is not None:
-            bpy.data.shape_keys[getKeyBlock(key_name)].key_blocks[
-                key_name
-            ].value = value
-
-    # Set the value of the fallback shapekeys if the primary shapekeys are not found
-    if fallback_shapekeys is not None:
-        for primary_key_name, fallback_key_name, value in fallback_shapekeys:
-            if getKeyBlock(primary_key_name) is not None:
-                bpy.data.shape_keys[getKeyBlock(primary_key_name)].key_blocks[
-                    primary_key_name
-                ].value = value
-            elif getKeyBlock(fallback_key_name) is not None:
-                bpy.data.shape_keys[getKeyBlock(fallback_key_name)].key_blocks[
-                    fallback_key_name
-                ].value = value
+        key_block = getKeyBlock(key_name)
+        if key_block is not None:
+            bpy.data.shape_keys[key_block].key_blocks[key_name].value = value
+        elif fallback_shapekeys is not None:
+            # Look for a fallback shape key
+            fallback_key_name = next(
+                (
+                    fallback
+                    for key, fallback, _ in fallback_shapekeys
+                    if key == key_name
+                ),
+                None,
+            )
+            if fallback_key_name is not None:
+                fallback_key_block = getKeyBlock(fallback_key_name)
+                if fallback_key_block is not None:
+                    bpy.data.shape_keys[fallback_key_block].key_blocks[
+                        fallback_key_name
+                    ].value = value
 
     # Add a new shape key from the mix
-    bpy.data.objects[object_name].shape_key_add(name=shapekey_name, from_mix=True)
+    new_shape_key = bpy.data.objects[object_name].shape_key_add(
+        name=shapekey_name, from_mix=True
+    )
 
-    # Reset all shape key values to 0
+    # Set the value of the new shape key to 1
+    new_shape_key.value = 1
+
+    # Reset all shape keys
     for key in bpy.data.objects[object_name].data.shape_keys.key_blocks:
         key.value = 0
 

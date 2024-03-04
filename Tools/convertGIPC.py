@@ -151,7 +151,7 @@ class ConvertGenshinPlayerCharacter(Operator):
             blender_utils.SelectObject("Face")
 
             # Check if the required shape keys are present
-            required_shape_keys = ["Mouth_A01", "Mouth_Fury01", "Mouth_Angry02"]
+            required_shape_keys = ["Mouth_A01", "Mouth_Fury01", "Mouth_Open01"]
             fallback_shapekeys = [
                 ("Mouth_Fury01", "Mouth_Open01", 0.5),
             ]
@@ -177,9 +177,13 @@ class ConvertGenshinPlayerCharacter(Operator):
 
             # Generate additional shape keys
             shapekey_data = {
-                "A": [("Mouth_A01", 1.0)],
-                "O": [("Mouth_Fury01", 0.25), ("Mouth_A01", 0.5)],
-                "CH": [("Mouth_Angry02", 1.0)],
+                "A": [("Mouth_A01", 1)],
+                "O": [
+                    ("Mouth_Smile02", 0.5),
+                    ("Mouth_A01", 0.5),
+                    ("Mouth_Smile02", 0.5),
+                ],
+                "CH": [("Mouth_Open01", 1.0), ("Mouth_A01", 0.115)],
                 "vrc.v_aa": [("A", 0.9998)],
                 "vrc.v_ch": [("CH", 0.9996)],
                 "vrc.v_dd": [("A", 0.3), ("CH", 0.7)],

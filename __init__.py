@@ -20,7 +20,7 @@ from . import settings
 bl_info = {
     "name": "Hoyo2VRC",
     "author": "Meliodas",
-    "version": (3, 0, 0),
+    "version": (3, 0, 2),
     "blender": (4, 0, 2),
     "location": "3D View > Sidebar > Hoyo2VRC",
     "description": "Convert Hoyoverse models to VRChat usable models.",
