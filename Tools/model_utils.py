@@ -138,7 +138,7 @@ def JoinObjects(target_obj):
     blender_utils.ChangeMode("OBJECT")
 
 
-def MergeFaceByDistance(target_obj_name, obj_names_to_merge, shapekey_name):
+def MergeFaceByDistance(target_obj_name, obj_names_to_merge, shapekey_name=None):
     # Get the target object
     target_obj = bpy.data.objects.get(target_obj_name)
     if target_obj is None:
@@ -165,16 +165,18 @@ def MergeFaceByDistance(target_obj_name, obj_names_to_merge, shapekey_name):
     # Join the selected objects into the active object
     bpy.ops.object.join()
 
-    # Store the current active shape key index
-    current_active_shape_key_index = target_obj.active_shape_key_index
+    # If shapekey_name is not None and target object has shape keys, apply the shapekey
+    if shapekey_name is not None and target_obj.data.shape_keys is not None:
+        # Store the current active shape key index
+        current_active_shape_key_index = target_obj.active_shape_key_index
 
-    # Set the active shape key to the specified one
-    target_obj.active_shape_key_index = (
-        target_obj.data.shape_keys.key_blocks.keys().index(shapekey_name)
-    )
+        # Set the active shape key to the specified one
+        target_obj.active_shape_key_index = (
+            target_obj.data.shape_keys.key_blocks.keys().index(shapekey_name)
+        )
 
-    # Set the shape key value
-    target_obj.data.shape_keys.key_blocks[shapekey_name].value = 1.0
+        # Set the shape key value
+        target_obj.data.shape_keys.key_blocks[shapekey_name].value = 1.0
 
     # Switch to edit mode
     blender_utils.ChangeMode("EDIT")
@@ -191,11 +193,13 @@ def MergeFaceByDistance(target_obj_name, obj_names_to_merge, shapekey_name):
     # Switch back to object mode
     blender_utils.ChangeMode("OBJECT")
 
-    # Reset the shape key value to 0
-    target_obj.data.shape_keys.key_blocks[shapekey_name].value = 0
+    # If shapekey_name is not None and target object has shape keys, reset the shape key value and restore the active shape key index
+    if shapekey_name is not None and target_obj.data.shape_keys is not None:
+        # Reset the shape key value to 0
+        target_obj.data.shape_keys.key_blocks[shapekey_name].value = 0
 
-    # Restore the active shape key index
-    target_obj.active_shape_key_index = current_active_shape_key_index
+        # Restore the active shape key index
+        target_obj.active_shape_key_index = current_active_shape_key_index
 
 
 def MergeMeshes():

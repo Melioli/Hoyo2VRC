@@ -290,7 +290,11 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             if bpy.context.scene.reconnect_armature:
                 ConnectArmature()
             ReparentBones()
-            model_utils.MergeFaceByDistance("Face", ["Eyebrow", "EyeShape"], "A")
+            # Check if 'Face' object has shape keys
+            if shapekey_utils.GetShapeKey("Face", "A") is None:
+                model_utils.MergeFaceByDistance("Face", ["Eyebrow", "EyeShape"], "None")
+            else:
+                model_utils.MergeFaceByDistance("Face", ["Eyebrow", "EyeShape"], "A")
             model_utils.MergeMeshes()
 
         Run()
