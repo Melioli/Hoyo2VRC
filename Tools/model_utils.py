@@ -1,6 +1,8 @@
 import re
 import bpy
+import bmesh
 from . import blender_utils
+from mathutils import Vector
 
 
 def IdentifyModel(name):
@@ -33,6 +35,8 @@ def IdentifyModel(name):
         ),
         # Honkai Impact Playable Character
         (r"^(Avatar|Assister)_\w+?_C\d+(_\w+)$", "Honkai Impact", None, 1),
+        # Wuthering Waves Playable Character
+        (r"^(R2T1\w+|NH\w+)$", "Wuthering Waves", None, 1),
     ]
 
     for pattern, game_name, body_type_group, model_name_group in patterns:
@@ -53,11 +57,9 @@ def IdentifyModel(name):
 
     return game, body_type, model_name
 
-
 def IsValidModel(obj):
     # Check if the object is an armature
     return obj.type == "ARMATURE"
-
 
 def GetOrientations(armature):
     x_cord = 0
@@ -65,12 +67,6 @@ def GetOrientations(armature):
     z_cord = 2
     fbx = False
     return x_cord, y_cord, z_cord, fbx
-
-    keyBlock = [x for x in bpy.data.shape_keys if x.key_blocks.get(f"{keyName}")]
-    if keyBlock:
-        # print(keyBlock)
-        return keyBlock[-1].name
-
 
 def ScaleModel():
     for ob in bpy.context.scene.objects:
@@ -92,7 +88,6 @@ def ScaleModel():
 
             ob.select_set(False)
 
-
 def RemoveEmpties():
     for ob in bpy.context.scene.objects:
         if ob.type == "EMPTY":
@@ -100,14 +95,12 @@ def RemoveEmpties():
             Empties = ob
             bpy.data.objects.remove(Empties, do_unlink=True)
 
-
 def ClearRotations():
     for ob in bpy.context.scene.objects:
         if ob.type == "ARMATURE":
             ob.select_set(True)
             ob.rotation_euler = [0, 0, 0]
             ob.select_set(False)
-
 
 def CleanMeshes():
     for obj in bpy.data.objects:
@@ -117,6 +110,14 @@ def CleanMeshes():
         ):
             bpy.data.objects.remove(obj, do_unlink=True)
 
+def RenameMeshToBody():
+    # Get the mesh object in the scene
+    mesh_object = next((obj for obj in bpy.data.objects if obj.type == "MESH"), None)
+
+    # Check if a mesh object exists
+    if mesh_object is not None:
+        # Rename the mesh object to "Body"
+        mesh_object.name = "Body"
 
 def JoinObjects(target_obj):
 
@@ -136,7 +137,6 @@ def JoinObjects(target_obj):
     bpy.ops.object.join()
 
     blender_utils.ChangeMode("OBJECT")
-
 
 def MergeFaceByDistance(target_obj_name, obj_names_to_merge, shapekey_name=None):
     # Get the target object
@@ -201,7 +201,6 @@ def MergeFaceByDistance(target_obj_name, obj_names_to_merge, shapekey_name=None)
         # Restore the active shape key index
         target_obj.active_shape_key_index = current_active_shape_key_index
 
-
 def MergeMeshes():
     if bpy.context.scene.merge_all_meshes:
         # Deselect all objects
@@ -224,10 +223,8 @@ def MergeMeshes():
 
         pass
 
-
 def GetMeshes():
     return [obj for obj in bpy.data.objects if obj.type == "MESH"]
-
 
 def ClearAnimations():
     # Iterate over all objects in the scene
@@ -240,7 +237,6 @@ def ClearAnimations():
     # Remove all actions
     for action in bpy.data.actions:
         bpy.data.actions.remove(action)
-
 
 def ApplyFaceMask(object_name, group_name):
 
@@ -266,3 +262,73 @@ def ApplyFaceMask(object_name, group_name):
     # Assign all vertices of the object to the vertex group
     for vertex in obj.data.vertices:
         vertex_group.add([vertex.index], 1.0, "REPLACE")
+        
+def SelectVertByShapeKey(context, side, shape_key_name):
+    TOL = 1e-5  # tolerance
+    ob = context.edit_object
+    me = ob.data
+    bm = bmesh.from_edit_mesh(me)
+    
+    # Find the shape key by name
+    shape_key = ob.data.shape_keys.key_blocks.get(shape_key_name)
+    if shape_key is None:
+        raise ValueError(f"Shape key '{shape_key_name}' not found")
+
+    # Find materials that end with the specified suffix
+    eye_material_indices = {i for i, mat in enumerate(ob.data.materials) if mat and mat.name.endswith('Eye') or mat.name.endswith('Eyes')}
+
+    # Gather vertices connected to faces with the "Eye" material
+    eye_verts = {v.index for face in bm.faces if face.material_index in eye_material_indices for v in face.verts}
+
+    # Select vertices affected by the shape key and connected to the "Eye" material
+    for v in bm.verts:
+        if v.index in eye_verts:
+            bv = me.vertices[v.index]
+            v.select = (shape_key.data[v.index].co - bv.co).length > TOL
+            if side == 'L' and v.co[0] < 0:
+                v.select = False
+            elif side == 'R' and v.co[0] >= 0:
+                v.select = False
+
+    bpy.ops.mesh.select_more(use_face_step=False)
+    bmesh.update_edit_mesh(me)
+
+def RemoveMaterials(obj, remove_suffixes=None, keep_suffixes=None):
+    bpy.context.view_layer.objects.active = obj  # Set the active object context
+    if remove_suffixes:
+        # Remove materials that end with any of the specified suffixes
+        for i in reversed(range(len(obj.material_slots))):
+            mat = obj.material_slots[i].material
+            if mat and any(mat.name.endswith(suffix) for suffix in remove_suffixes):
+                obj.active_material_index = i
+                bpy.ops.object.material_slot_remove()
+    elif keep_suffixes:
+        # Remove all materials except those that end with any of the specified suffixes
+        for i in reversed(range(len(obj.material_slots))):
+            mat = obj.material_slots[i].material
+            if mat and not any(mat.name.endswith(suffix) for suffix in keep_suffixes):
+                obj.active_material_index = i
+                bpy.ops.object.material_slot_remove()
+
+def CalculateEyeCenters():
+    eye_centers = {}
+
+    for eye_name in ["Left Eye", "Right Eye"]:
+        eye_obj = bpy.data.objects.get(eye_name)
+        if eye_obj is None:
+            raise ValueError(f"Object '{eye_name}' not found")
+
+        # Ensure the eye object is selected and active
+        bpy.context.view_layer.objects.active = eye_obj
+        eye_obj.select_set(True)
+
+        # Calculate the center of the eye mesh
+        bm = bmesh.new()
+        bm.from_mesh(eye_obj.data)
+        eye_center = sum((eye_obj.matrix_world @ v.co for v in bm.verts), Vector()) / len(bm.verts)
+        bm.free()
+
+        # Store the center in the dictionary
+        eye_centers[eye_name] = eye_center
+
+    return eye_centers

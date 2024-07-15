@@ -490,6 +490,142 @@ def GetGameData(game):
                 "finger": "Finger",
                 "part": "Part",
             },
+        },
+    elif game == "Wuthering Waves":
+        return {
+            "bone_names": {
+                "Pelvis": "Hips",
+                "LThigh": "Left leg",
+                "RThigh": "Right leg",
+                "LCalf": "Left knee",
+                "RCalf": "Right knee",
+                "LFoot": "Left ankle",
+                "RFoot": "Right ankle",
+                "LToe0": "Left toe",
+                "RToe0": "Right toe",
+                "LClavicle": "Left shoulder",
+                "RClavicle": "Right shoulder",
+                "LUpperArm": "Left arm",
+                "RUpperArm": "Right arm",
+                "LForearm": "Left elbow",
+                "RForearm": "Right elbow",
+                "LHand": "Left wrist",
+                "RHand": "Right wrist",
+                "LFinger0": "Thumb1_L",
+                "LFinger01": "Thumb2_L",
+                "LFinger02": "Thumb3_L",
+                "LFinger1": "IndexFinger1_L",
+                "LFinger11": "IndexFinger2_L",
+                "LFinger12": "IndexFinger3_L",
+                "LFinger2": "MiddleFinger1_L",
+                "LFinger21": "MiddleFinger2_L",
+                "LFinger22": "MiddleFinger3_L",
+                "LFinger3": "RingFinger1_L",
+                "LFinger31": "RingFinger2_L",
+                "LFinger32": "RingFinger3_L",
+                "LFinger4": "LittleFinger1_L",
+                "LFinger41": "LittleFinger2_L",
+                "LFinger42": "LittleFinger3_L",
+                "RFinger0": "Thumb1_R",
+                "RFinger01": "Thumb2_R",
+                "RFinger02": "Thumb3_R",
+                "RFinger1": "IndexFinger1_R",
+                "RFinger11": "IndexFinger2_R",
+                "RFinger12": "IndexFinger3_R",
+                "RFinger2": "MiddleFinger1_R",
+                "RFinger21": "MiddleFinger2_R",
+                "RFinger22": "MiddleFinger3_R",
+                "RFinger3": "RingFinger1_R",
+                "RFinger31": "RingFinger2_R",
+                "RFinger32": "RingFinger3_R",
+                "RFinger4": "LittleFinger1_R",
+                "RFinger41": "LittleFinger2_R",
+                "RFinger42": "LittleFinger3_R",
+                "Root_M": "Hips",
+                "Hip_L": "Left leg",
+                "Hip_R": "Right leg",
+                "HipPart1_R": "Right leg twist R",
+                "HipPart1_L": "Left leg twist L",
+                "Spine1_M": "Spine",
+                "Spine2_M": "Chest",
+                "Chest_M": "Upper Chest",
+                "Shoulder_L": "Left arm",
+                "Shoulder_R": "Right arm",
+                "Scapula_R": "Right shoulder",
+                "Scapula_L": "Left shoulder",
+                "Neck_M": "Neck",
+                "Head_M": "Head",
+                "face": "Face",
+                "Knee_L": "Left knee",
+                "Knee_R": "Right knee",
+                "Ankle_L": "Left ankle",
+                "Ankle_R": "Right ankle",
+                "Toes_L": "Left toe",
+                "Toes_R": "Right toe",
+                "Elbow_L": "Left elbow",
+                "Elbow_R": "Right elbow",
+                "Wrist_L": "Left wrist",
+                "Wrist_R": "Right wrist",
+                "LFinger5": "Thumb1_L",
+                "LFinger51": "Thumb2_L",
+                "LFinger52": "Thumb3_L",
+                "RFinger5": "Thumb1_R",
+                "RFinger51": "Thumb2_R",
+                "RFinger52": "Thumb3_R",
+            },
+            "starts_with": {
+                "_": "",
+                "ValveBiped_": "",
+                "Valvebiped_": "",
+                "Bip1_": "Bip_",
+                "Bip01_": "Bip_",
+                "Bip01": "",
+                "Bip001": "",
+                "Bip02_": "Bip_",
+                "Character1_": "",
+                "HLP_": "",
+                "JD_": "",
+                "JU_": "",
+                "Armature|": "",
+                "Bone_": "",
+                "C_": "",
+                "Cf_S_": "",
+                "Cf_J_": "",
+                "G_": "",
+                "Joint_": "",
+                "Def_C_": "",
+                "Def_": "",
+                "DEF_": "",
+                "Chr_": "",
+                "B_": "",
+            },
+            "ends_with": {
+                "_Bone": "",
+                "_Bn": "",
+                "_Le": "_L",
+                "_Ri": "_R",
+                "_": "",
+                "_End": "",
+            },
+            "replaces": {
+                " ": "_",
+                "-": "_",
+                ".": "_",
+                ":": "_",
+                "____": "_",
+                "___": "_",
+                "__": "_",
+                "_Le_": "_L_",
+                "_l": "_L",
+                "_Ri_": "_R_",
+                "_r": "_R",
+                "_m": "_M",
+                "LEFT": "Left",
+                "RIGHT": "Right",
+                "all": "All",
+                "finger": "Finger",
+                "part": "Part",
+            },
         }
 
 
@@ -544,6 +680,107 @@ def CleanBones():
         "Bone_Eye_R_01",
         "Skin_GRP",
         "Main",
+        "Root",
+        "WeaponProp00",
+        "WeaponProp01",
+        "WeaponProp02",
+        "WeaponProp03",
+        "WeaponProp04",
+        "WeaponProp05",
+        "WeaponProp06",
+        "WeaponProp07",
+        "WeaponProp08",
+        "WeaponProp09",
+        "WeaponProp10",
+        "Weapon000",
+        "Weapon001",
+        "Weapon002",
+        "Weapon003",
+        "Weapon004",
+        "Weapon005",
+        "Weapon006",
+        "Weapon007",
+        "Weapon008",
+        "Weapon009",
+        "Weapon010",
+        "CameraPosition",
+        "MiddleCase",
+        "LeftSuspensionCase",
+        "RightSuspensionCase",
+        "DeviceLine",
+        "Device_Light",
+        "Bone",
+        "Burst_Focus",
+        "EyeEffectCase2",
+        "EyeEffectCase1",
+        "EyeEffectCase",
+        "MarkCase",
+        "HitCase",
+        "_Shoulder_R_F",
+        "_Shoulder_L_F",
+        "_Shoulder_R_B",
+        "_Shoulder_L_B",
+        "_Shoulder_R_M",
+        "_Shoulder_L_M",
+        "_Shoulder_R_A",
+        "_Shoulder_R_B",
+        "_Shoulder_R_C",
+        "_Shoulder_R_D",
+        "_Shoulder_R_E",
+        "_Shoulder_R_F",
+        "_Shoulder_R_G",
+        "_Shoulder_R_H",
+        "_Shoulder_R_I",
+        "_Shoulder_R_J",
+        "_Shoulder_R_K",
+        "_Shoulder_R_L",
+        "_Shoulder_R_M",
+        "_Shoulder_R_N",
+        "_Shoulder_R_O",
+        "_Shoulder_R_P",
+        "_Shoulder_R_Q",
+        "_Shoulder_R_R",
+        "_Shoulder_R_S",
+        "_Shoulder_R_T",
+        "_Shoulder_R_U",
+        "_Shoulder_R_V",
+        "_Shoulder_R_W",
+        "_Shoulder_R_X",
+        "_Shoulder_R_Y",
+        "_Shoulder_R_Z",
+        "_Shoulder_L_A",
+        "_Shoulder_L_B",
+        "_Shoulder_L_C",
+        "_Shoulder_L_D",
+        "_Shoulder_L_E",
+        "_Shoulder_L_F",
+        "_Shoulder_L_G",
+        "_Shoulder_L_H",
+        "_Shoulder_L_I",
+        "_Shoulder_L_J",
+        "_Shoulder_L_K",
+        "_Shoulder_L_L",
+        "_Shoulder_L_M",
+        "_Shoulder_L_N",
+        "_Shoulder_L_O",
+        "_Shoulder_L_P",
+        "_Shoulder_L_Q",
+        "_Shoulder_L_R",
+        "_Shoulder_L_S",
+        "_Shoulder_L_T",
+        "_Shoulder_L_U",
+        "_Shoulder_L_V",
+        "_Shoulder_L_W",
+        "_Shoulder_L_X",
+        "_Shoulder_L_Y",
+        "_Shoulder_L_Z",
+        "_R_CalfTwist",
+        "_L_CalfTwist",
+        "HuluProp01",
+        "HeadSocket",
+        "BuffSocket",
+        
+        
     ]
 
     # Get the armature object
@@ -625,7 +862,7 @@ def FixHips(hips, right_leg, left_leg, spine, x_cord, y_cord, z_cord):
     # Make Hips point straight up
     hips.tail[x_cord] = hips.head[x_cord]
     hips.tail[y_cord] = hips.head[y_cord]
-    hips.tail[z_cord] = spine.head[z_cord]
+    hips.tail[z_cord] = spine.head[z_cord] + 4
 
     if hips.tail[z_cord] < hips.head[z_cord]:
         hips.tail[z_cord] = hips.tail[z_cord] + 0.1
@@ -641,7 +878,17 @@ def FixSpine(spine, hips, x_cord, y_cord, z_cord):
     spine.tail[x_cord] = spine.head[x_cord]
     spine.tail[y_cord] = spine.head[y_cord]  # Align tail with head on y-axis
     spine.tail[z_cord] = spine.head[z_cord] + 0.065
+    
+def FixWWSpine(spine, hips, x_cord, y_cord, z_cord):
+    # Fixing Spine
+    spine.head[x_cord] = hips.tail[x_cord]
+    spine.head[y_cord] = hips.tail[y_cord]
+    spine.head[z_cord] = hips.tail[z_cord]
 
+    # Make Spine point straight up
+    spine.tail[x_cord] = spine.head[x_cord]
+    spine.tail[y_cord] = spine.head[y_cord]  # Align tail with head on y-axis
+    spine.tail[z_cord] = spine.head[z_cord] + 8
 
 def FixChest(chest, spine, x_cord, y_cord, z_cord):
     chest.head[x_cord] = spine.tail[x_cord]
@@ -651,6 +898,15 @@ def FixChest(chest, spine, x_cord, y_cord, z_cord):
     chest.tail[x_cord] = chest.head[x_cord]
     chest.tail[y_cord] = chest.head[y_cord]
     chest.tail[z_cord] = chest.head[z_cord] + 0.065
+    
+def FixWWChest(chest, spine, x_cord, y_cord, z_cord):
+    chest.head[x_cord] = spine.tail[x_cord]
+    chest.head[y_cord] = spine.tail[y_cord]
+    chest.head[z_cord] = spine.tail[z_cord]
+
+    chest.tail[x_cord] = chest.head[x_cord]
+    chest.tail[y_cord] = chest.head[y_cord]
+    chest.tail[z_cord] = chest.head[z_cord] + 8
 
 
 def FixUpperChest(upperchest, chest, x_cord, y_cord, z_cord):
@@ -743,7 +999,7 @@ def attacheyes(armature, eye_bone_name, attach_to):
         eye_bone.tail.x = eye_bone.head.x
         eye_bone.tail.y = eye_bone.head.y
         eye_bone.tail.z = attach_to_bone.head.z + 0.12
-
+        
 
 def MoveBone(armature, bone):
     bone.select = True

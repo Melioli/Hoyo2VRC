@@ -44,7 +44,6 @@ def GenerateShapeKey(object_name, shapekey_name, mix, fallback_shapekeys=None):
     for key in bpy.data.objects[object_name].data.shape_keys.key_blocks:
         key.value = 0
 
-
 def GetShapeKey(object_name, shape_name):
     bpy.context.view_layer.objects.active = bpy.data.objects[object_name]
     if bpy.context.object.data.shape_keys == None:
@@ -53,14 +52,12 @@ def GetShapeKey(object_name, shape_name):
         if shape_key.name == shape_name:
             return shape_key
 
-
 def ResetPose(root_object):
     bpy.context.view_layer.objects.active = root_object
     blender_utils.ChangeMode("POSE")
     bpy.ops.pose.select_all(action="SELECT")
     bpy.ops.pose.transforms_clear()
     blender_utils.ChangeMode("OBJECT")
-
 
 def FaceRigToShapekey(root=None, meshname="Face"):
     # If no root object is provided, use the active object
@@ -103,3 +100,19 @@ def FaceRigToShapekey(root=None, meshname="Face"):
         shapekey.name = shapekey_name
 
         ResetPose(root)
+        
+def RemoveShapeKeys(shape_key_names, object_name):
+    obj = bpy.data.objects.get(object_name)
+    if obj is None or obj.data.shape_keys is None:
+        print(f"No shape keys found for object '{object_name}'.")
+        return
+
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    for shape_key_name in shape_key_names:
+        if shape_key_name in obj.data.shape_keys.key_blocks:
+            # Set the active shape key to the one we want to remove
+            obj.active_shape_key_index = obj.data.shape_keys.key_blocks.keys().index(shape_key_name)
+            # Remove the active shape key
+            bpy.ops.object.shape_key_remove(all=False)

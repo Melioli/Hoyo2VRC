@@ -13,18 +13,19 @@ from .Tools import (
     convertHSRPC,
     convertHI3PC,
     convertNPC,
+    convertWWPC,
 )
 from . import settings
 
 
 bl_info = {
-    "name": "Hoyo2VRC",
+    "name": "Hoyo2VRC X",
     "author": "Meliodas",
-    "version": (3, 0, 3),
+    "version": (4, 0, 0),
     "blender": (4, 0, 2),
     "location": "3D View > Sidebar > Hoyo2VRC",
-    "description": "Convert Hoyoverse models to VRChat usable models.",
-    "warning": "Requires Hoyoverse Datamined Assets",
+    "description": "Convert Hoyoverse and Wuthering Waves models to VRChat usable models.",
+    "warning": "Requires Wuthering Waves/Hoyoverse Datamined Assets",
     "doc_url": "https://docs.hoyotoon.com",
     "support": "COMMUNITY",
     "category": "VRC",
@@ -85,6 +86,7 @@ class Hoyo2VRCModelPanel(Panel):
                 "Genshin Impact": ("hoyo2vrc.convertgpc", "Convert GI Avatar"),
                 "Honkai Star Rail": ("hoyo2vrc.converthsrpc", "Convert HSR Avatar"),
                 "Honkai Impact": ("hoyo2vrc.converthi3pc", "Convert HI3 Avatar"),
+                "Wuthering Waves": ("hoyo2vrc.convertwuwa", "Convert WuWa Avatar"),
                 # "NPC": ("hoyo2vrc.convertnpc", "Convert NPC"),
             }
 
@@ -97,7 +99,7 @@ class Hoyo2VRCModelPanel(Panel):
                     operator=operator_func, text=display_text, icon="PLAY"
                 )
             elif game == "NPC":
-                row.label(text="NPC is currently not supported", icon="ERROR")
+                row.label(text="NPC is not supported", icon="ERROR")
 
 
 class Hoyo2VRCConversionSettingsPanel(Panel):
@@ -174,6 +176,7 @@ classes = [
     convertHI3PC.ConvertHonkaiImpactPlayerCharacter,
     convertHSRPC.ConvertHonkaiStarRailPlayerCharacter,
     convertNPC.ConvertNonePlayerCharacter,
+    convertWWPC.ConvertWutheringWavesPlayerCharacter,
     importer.Hoyo2VRCImportFbx,
     exporter.Hoyo2VRCExportFbx,
     hoyofbx.Hoyo2VRCImport,
