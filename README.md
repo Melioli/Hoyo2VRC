@@ -1,6 +1,9 @@
 <br>
 <p align="center">
-    <a href="https://github.com/Melioli/Hoyo2VRC"><img src="https://hoyotoon.com/images/Hoyo2VRCBanner.png" alt="Hoyo2VRC"/></a>
+    <a href="https://github.com/Melioli/Hoyo2VRC"><img src="https://github.com/user-attachments/assets/372da619-e9eb-4199-986c-63b9094d686c" alt="Hoyo2VRC"/></a>
+
+
+    
 </p><br>
 
 <p align="center">
