@@ -21,7 +21,7 @@ from . import settings
 bl_info = {
     "name": "Hoyo2VRC X",
     "author": "Meliodas",
-    "version": (4, 0, 0),
+    "version": (4, 0, 1),
     "blender": (4, 0, 2),
     "location": "3D View > Sidebar > Hoyo2VRC",
     "description": "Convert Hoyoverse and Wuthering Waves models to VRChat usable models.",
@@ -100,6 +100,8 @@ class Hoyo2VRCModelPanel(Panel):
                 )
             elif game == "NPC":
                 row.label(text="NPC is not supported", icon="ERROR")
+            elif game == "Converted":
+                row.label(text="Model already converted", icon="ERROR")
 
 
 class Hoyo2VRCConversionSettingsPanel(Panel):
