@@ -774,13 +774,9 @@ def CleanBones():
         "_Shoulder_L_X",
         "_Shoulder_L_Y",
         "_Shoulder_L_Z",
-        "_R_CalfTwist",
-        "_L_CalfTwist",
         "HuluProp01",
         "HeadSocket",
         "BuffSocket",
-        
-        
     ]
 
     # Get the armature object
@@ -862,7 +858,7 @@ def FixHips(hips, right_leg, left_leg, spine, x_cord, y_cord, z_cord):
     # Make Hips point straight up
     hips.tail[x_cord] = hips.head[x_cord]
     hips.tail[y_cord] = hips.head[y_cord]
-    hips.tail[z_cord] = spine.head[z_cord] + 4
+    hips.tail[z_cord] = spine.head[z_cord] + 0.03
 
     if hips.tail[z_cord] < hips.head[z_cord]:
         hips.tail[z_cord] = hips.tail[z_cord] + 0.1
