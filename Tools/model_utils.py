@@ -37,6 +37,8 @@ def IdentifyModel(name):
         (r"^(Avatar|Assister)_\w+?_C\d+(_\w+)$", "Honkai Impact", None, 1),
         # Wuthering Waves Playable Character
         (r"^(R2T1\w+|NH\w+)$", "Wuthering Waves", None, 1),
+        # Converted Model
+        (r"^(Armature)$", "Converted", None, 1),
     ]
 
     for pattern, game_name, body_type_group, model_name_group in patterns:
@@ -107,6 +109,7 @@ def CleanMeshes():
         if obj.type == "MESH" and (
             obj.name in ["EffectMesh", "EyeStar", "Weapon_L", "Weapon_R"]
             or "lod" in obj.name.lower()
+            or "AO_Bip" in obj.name
         ):
             bpy.data.objects.remove(obj, do_unlink=True)
 
