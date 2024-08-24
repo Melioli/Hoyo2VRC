@@ -305,11 +305,11 @@ class ConvertWutheringWavesPlayerCharacter(Operator):
             for obj in new_objects:
                 if obj.type == 'MESH' and obj.name in ["Left Eye", "Right Eye"]:
                     model_utils.RemoveMaterials(obj, keep_suffixes=["Eye", "Eyes"])
-
+                    
             
             bpy.ops.object.mode_set(mode='OBJECT')
 
-        def CreateEyes(eye_name, bone_name):
+        def CreateEyesBones(eye_name, bone_name):
             # Run CursorToObject to set the cursor location
             blender_utils.CursorToObject(eye_name)
 
@@ -379,6 +379,34 @@ class ConvertWutheringWavesPlayerCharacter(Operator):
             eye_obj.select_set(False)
             armature.select_set(False)
             
+        def MergeEyes():
+            # Deselect all objects
+            bpy.ops.object.select_all(action='DESELECT')
+
+            # Select the "Left Eye" and "Right Eye" objects
+            left_eye = bpy.data.objects.get("Left Eye")
+            right_eye = bpy.data.objects.get("Right Eye")
+
+            if left_eye is None or right_eye is None:
+                raise ValueError("One or both eye objects not found")
+
+            left_eye.select_set(True)
+            right_eye.select_set(True)
+
+            # Set the active object to "Left Eye" (or any of the selected objects)
+            bpy.context.view_layer.objects.active = left_eye
+
+            # Join the selected objects into a single object
+            bpy.ops.object.join()
+
+            # Rename the merged object to "Eyes"
+            bpy.context.object.name = "Eyes"
+            
+            # Deselect all objects
+            bpy.ops.object.select_all(action='DESELECT')
+            
+            
+        
         def Run():
             armature_utils.RenameBones(game, armature)
             armature_utils.CleanBones()
@@ -388,8 +416,9 @@ class ConvertWutheringWavesPlayerCharacter(Operator):
             model_utils.RenameMeshToBody()
             GenShapekey()
             SeparateWuWaEyes("Pupil_Scale")
-            CreateEyes("Left Eye", "Eye_L")
-            CreateEyes("Right Eye", "Eye_R")
+            CreateEyesBones("Left Eye", "Eye_L")
+            CreateEyesBones("Right Eye", "Eye_R")
+            MergeEyes()
             blender_utils.ResetCursor()
 
 
