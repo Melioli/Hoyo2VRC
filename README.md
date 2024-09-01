@@ -21,7 +21,7 @@
 ## Wiki
 
 > [!WARNING]
-> For comprehensive guidance on installation and usage of the addon, please consult our [Wiki](https://docs.hoyotoon.com/category/hoyo2vrc).
+> For comprehensive guidance on installation and usage of the addon, please consult our [Discord](https://discord.gg/meliverse).
 
 ## Features
 
@@ -31,6 +31,11 @@
 - **Automated Conversion**: The add-on automatically transforms raw datamined assets into VRChat avatars. Detailed information about the fixes and features implemented by the conversion buttons can be found in our [documentation](https://docs.hoyotoon.com/Hoyo2VRC/Features).
 - **Time-saving fixes**: The add-on applies numerous fixes, saving you approximately 20 minutes of manual work by doing it in mere seconds.
 - **Correct importing**: Models are imported with the perfect settings that you'd normally have to set yourself in BetterFBX.
+
+## Installation
+- Download the latest release from the [releases page](<https://github.com/Melioli/Hoyo2VRC/releases>)
+- Install into blender by going to `Edit > Preferences > Add-ons > Install` and selecting the downloaded zip file.
+- Enable the addon by searching for `Hoyo2VRC` in the search bar and checking the box if not already checked.
 
 ## Contact
 
