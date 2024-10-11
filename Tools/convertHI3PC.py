@@ -97,91 +97,67 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             blender_utils.ChangeMode("OBJECT")
 
         def GenShapekey():
-
-            # Check if 'Face' object exists
-            if "Face" not in bpy.data.objects:
-                print("Face object does not exist. Skipping shape key generation.")
+            # Check if 'Face' and 'EyeShape' objects exist
+            if "Face" not in bpy.data.objects or "EyeShape" not in bpy.data.objects:
+                print("Face or EyeShape object does not exist. Skipping shape key generation.")
                 return
 
-            blender_utils.SelectObject("Face")
-
             # Check if the required shape keys are present
-            required_shape_keys = ["Mouth_A01", "Mouth_O01", "Mouth_Angry02"]
+            required_shape_keys = {
+                "Face": ["Mouth_A01", "Mouth_O01", "Mouth_Angry02"],
+                "EyeShape": ["Eye_Wink02_L", "Eye_Wink02_R", "Eye_Wink01_L", "Eye_Wink01_R"]
+            }
             fallback_shapekeys = [
                 ("Mouth_Angry02", "Mouth_N01", 1),
             ]
 
             fallback_dict = {key: value for key, value, _ in fallback_shapekeys}
 
-            for i, key in enumerate(required_shape_keys):
-                if shapekey_utils.getKeyBlock(key) is None:
-                    # Check if there is a fallback shape key
-                    if (
-                        key in fallback_dict
-                        and shapekey_utils.getKeyBlock(fallback_dict[key]) is not None
-                    ):
-                        required_shape_keys[i] = fallback_dict[key]
-                        print(
-                            f"Replaced missing shape key {key} with fallback {fallback_dict[key]}"
-                        )
-                    else:
-                        print(
-                            f"Required shape key {key} is not present and no fallback available. Skipping shape key generation."
-                        )
-                        return
+            for obj_name, keys in required_shape_keys.items():
+                obj = bpy.data.objects.get(obj_name)
+                if obj is None:
+                    print(f"Object {obj_name} not found. Skipping its shape keys.")
+                    continue
+
+                for key in keys:
+                    if shapekey_utils.getKeyBlock(key, obj) is None:
+                        if key in fallback_dict and shapekey_utils.getKeyBlock(fallback_dict[key], obj) is not None:
+                            print(f"Replaced missing shape key {key} with fallback {fallback_dict[key]} in {obj_name}")
+                        else:
+                            print(f"Required shape key {key} is not present in {obj_name} and no fallback available.")
 
             # Generate additional shape keys
             shapekey_data = {
-                "A": [("Mouth_A01", 1.0)],
-                "O": [("Mouth_O01", 1.0)],
-                "CH": [("Mouth_Angry02", 1.0)],
-                "vrc.v_aa": [("A", 0.9998)],
-                "vrc.v_ch": [("CH", 0.9996)],
-                "vrc.v_dd": [("A", 0.3), ("CH", 0.7)],
-                "vrc.v_e": [("CH", 0.7), ("O", 0.3)],
-                "vrc.v_ff": [("A", 0.2), ("CH", 0.4)],
-                "vrc.v_ih": [("A", 0.5), ("CH", 0.2)],
-                "vrc.v_kk": [("A", 0.7), ("CH", 0.4)],
-                "vrc.v_nn": [("A", 0.2), ("CH", 0.7)],
-                "vrc.v_oh": [("A", 0.2), ("O", 0.8)],
-                "vrc.v_ou": [("O", 0.9994)],
-                "vrc.v_pp": [("A", 0.0004), ("O", 0.0004)],
-                "vrc.v_rr": [("CH", 0.5), ("O", 0.3)],
-                "vrc.v_sil": [("A", 0.0002), ("CH", 0.0002)],
-                "vrc.v_ss": [("CH", 0.8)],
-                "vrc.v_th": [("A", 0.4), ("O", 0.15)],
+                "A": [("Face", "Mouth_A01", 1.0)],
+                "O": [("Face", "Mouth_O01", 1.0)],
+                "CH": [("Face", "Mouth_Angry02", 1.0)],
+                "vrc.v_aa": [("Face", "A", 0.9998)],
+                "vrc.v_ch": [("Face", "CH", 0.9996)],
+                "vrc.v_dd": [("Face", "A", 0.3), ("Face", "CH", 0.7)],
+                "vrc.v_e": [("Face", "CH", 0.7), ("Face", "O", 0.3)],
+                "vrc.v_ff": [("Face", "A", 0.2), ("Face", "CH", 0.4)],
+                "vrc.v_ih": [("Face", "A", 0.5), ("Face", "CH", 0.2)],
+                "vrc.v_kk": [("Face", "A", 0.7), ("Face", "CH", 0.4)],
+                "vrc.v_nn": [("Face", "A", 0.2), ("Face", "CH", 0.7)],
+                "vrc.v_oh": [("Face", "A", 0.2), ("Face", "O", 0.8)],
+                "vrc.v_ou": [("Face", "O", 0.9994)],
+                "vrc.v_pp": [("Face", "A", 0.0004), ("Face", "O", 0.0004)],
+                "vrc.v_rr": [("Face", "CH", 0.5), ("Face", "O", 0.3)],
+                "vrc.v_sil": [("Face", "A", 0.0002), ("Face", "CH", 0.0002)],
+                "vrc.v_ss": [("Face", "CH", 0.8)],
+                "vrc.v_th": [("Face", "A", 0.4), ("Face", "O", 0.15)],
+                "Blink": [("EyeShape", "Eye_Wink02_L", 1), ("EyeShape", "Eye_Wink02_R", 1)],
+                "Happy Blink": [("EyeShape", "Eye_Wink01_L", 1), ("EyeShape", "Eye_Wink01_R", 1)],
             }
 
             for shapekey_name, mix in shapekey_data.items():
-                new_mix = []
-                for key, value in mix:
-                    if shapekey_utils.getKeyBlock(key) is None:
-                        # Look for a fallback shape key
-                        if (
-                            key in fallback_dict
-                            and shapekey_utils.getKeyBlock(fallback_dict[key])
-                            is not None
-                        ):
-                            new_key = fallback_dict[key]
-                            new_mix.append((new_key, value))
-                            print(
-                                f"Replaced missing shape key {key} with fallback {new_key}"
-                            )
-                        else:
-                            print(
-                                f"Skipping shape key {key} due to no fallback available."
-                            )
-                    else:
-                        new_mix.append((key, value))
-
-                if new_mix:
-                    shapekey_utils.GenerateShapeKey(
-                        "Face", shapekey_name, new_mix, fallback_shapekeys
-                    )
-                else:
-                    print(
-                        f"Skipping generation of {shapekey_name} due to missing shape keys."
-                    )
+                # Determine the target object based on the first item in the mix
+                target_object_name = mix[0][0]
+                try:
+                    shapekey_utils.GenerateShapeKey(target_object_name, shapekey_name, mix, fallback_shapekeys)
+                    print(f"Successfully generated shape key: {shapekey_name}")
+                except Exception as e:
+                    print(f"Error generating shape key {shapekey_name}: {str(e)}")
 
             blender_utils.ChangeMode("OBJECT")
 
@@ -285,16 +261,14 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             armature_utils.CleanBones()
             armature_utils.RenameBones(game, armature)
             SetupArmature()
-            GenShapekey()
-            FixEyes()
             if bpy.context.scene.reconnect_armature:
                 ConnectArmature()
-            ReparentBones()
-            # Check if 'Face' object has shape keys
-            if shapekey_utils.GetShapeKey("Face", "A") is None:
-                model_utils.MergeFaceByDistance("Face", ["Eyebrow", "EyeShape"], "None")
+            if bpy.context.scene.generate_shape_keys:
+                GenShapekey()
+            if bpy.context.scene.generate_shape_keys:
+                model_utils.MergeFaceByDistance("Face", ["EyeShape", "Eyebrow"], "A")
             else:
-                model_utils.MergeFaceByDistance("Face", ["Eyebrow", "EyeShape"], "A")
+                model_utils.MergeFaceByDistance("Face", ["EyeShape", "Eyebrow"], "Mouth_A01")
             model_utils.MergeMeshes()
 
         Run()

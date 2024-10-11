@@ -27,6 +27,16 @@ settings = {
         description="Toggle to fix the Armature based on Humanoid/VRC SDK/Full-Body-Tracking (On by default, disable for non-humanoid models).",
         default=True,
     ),
+    "generate_shape_keys": bpy.props.BoolProperty(
+        name="Generate Shape Keys",
+        description="Toggle to generate shape keys during model conversion.",
+        default=True,
+    ),
+    "keep_star_eye_mesh": bpy.props.BoolProperty(
+        name="Keep Star Eye Mesh",
+        description="Toggle to keep the Star Eye mesh during model conversion.",
+        default=False,
+    ),
 }
 
 

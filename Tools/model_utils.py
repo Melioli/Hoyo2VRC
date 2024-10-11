@@ -106,12 +106,19 @@ def ClearRotations():
 
 def CleanMeshes():
     for obj in bpy.data.objects:
-        if obj.type == "MESH" and (
-            obj.name in ["EffectMesh", "EyeStar", "Weapon_L", "Weapon_R"]
-            or "lod" in obj.name.lower()
-            or "AO_Bip" in obj.name
-        ):
-            bpy.data.objects.remove(obj, do_unlink=True)
+        if obj.type == "MESH":
+            should_remove = (
+                obj.name in ["EffectMesh", "Weapon_L", "Weapon_R"]
+                or "lod" in obj.name.lower()
+                or "AO_Bip" in obj.name
+            )
+            
+            # Check if we should keep the EyeStar mesh
+            if obj.name == "EyeStar" and not bpy.context.scene.keep_star_eye_mesh:
+                should_remove = True
+            
+            if should_remove:
+                bpy.data.objects.remove(obj, do_unlink=True)
 
 def RenameMeshToBody():
     # Get the mesh object in the scene

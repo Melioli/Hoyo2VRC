@@ -244,16 +244,18 @@ class ConvertNonePlayerCharacter(Operator):
                     )
 
         def Run():
-            model_utils.ScaleModel()
             model_utils.RemoveEmpties()
+            model_utils.ScaleModel()
             model_utils.ClearRotations()
+            model_utils.ScaleModel()
             model_utils.CleanMeshes()
+            armature_utils.CleanBones()
             armature_utils.RenameBones(game, armature)
             SetupArmature()
-            GenShapekey()
-            FixEyes()
             if bpy.context.scene.reconnect_armature:
                 ConnectArmature()
+            if bpy.context.scene.generate_shape_keys:
+                GenShapekey()
             model_utils.MergeFaceByDistance("Face", ["Face_Eye", "Brow"], "A")
             model_utils.MergeMeshes()
 

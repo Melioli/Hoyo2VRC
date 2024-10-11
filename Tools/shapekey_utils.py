@@ -2,47 +2,104 @@ import bpy
 from . import model_utils, blender_utils
 
 
-def getKeyBlock(keyName):
-    keyBlock = [x for x in bpy.data.shape_keys if x.key_blocks.get(f"{keyName}")]
-    if keyBlock:
-        # print(keyBlock)
-        return keyBlock[-1].name
+def getKeyBlock(keyName, obj=None):
+    if obj is None:
+        obj = bpy.context.active_object
+    if obj.data.shape_keys:
+        kb = obj.data.shape_keys.key_blocks.get(keyName)
+        return kb
+    return None
 
 
-def GenerateShapeKey(object_name, shapekey_name, mix, fallback_shapekeys=None):
-    # Set the value of the shape keys in the mix
-    for key_name, value in mix:
-        key_block = getKeyBlock(key_name)
-        if key_block is not None:
-            bpy.data.shape_keys[key_block].key_blocks[key_name].value = value
-        elif fallback_shapekeys is not None:
-            # Look for a fallback shape key
-            fallback_key_name = next(
-                (
-                    fallback
-                    for key, fallback, _ in fallback_shapekeys
-                    if key == key_name
-                ),
-                None,
-            )
-            if fallback_key_name is not None:
-                fallback_key_block = getKeyBlock(fallback_key_name)
-                if fallback_key_block is not None:
-                    bpy.data.shape_keys[fallback_key_block].key_blocks[
-                        fallback_key_name
-                    ].value = value
+def GenerateShapeKey(target_object_name, shapekey_name, mix, fallback_shapekeys=None):
+    target_object = bpy.data.objects[target_object_name]
+    
+    if target_object.data.shape_keys is None:
+        target_object.shape_key_add(name='Basis')
 
-    # Add a new shape key from the mix
-    new_shape_key = bpy.data.objects[object_name].shape_key_add(
-        name=shapekey_name, from_mix=True
-    )
+    new_key = target_object.shape_key_add(name=shapekey_name)
+    new_key.value = 0.0  # Set the initial value to 0 instead of 1
 
-    # Set the value of the new shape key to 1
-    new_shape_key.value = 1
+    # Store original shape key values
+    original_values = {}
 
-    # Reset all shape keys
-    for key in bpy.data.objects[object_name].data.shape_keys.key_blocks:
-        key.value = 0
+    # First pass: set shape key values and store originals
+    for item in mix:
+        if len(item) == 2:
+            obj_name, key_name = target_object_name, item[0]
+            value = item[1]
+        elif len(item) == 3:
+            obj_name, key_name, value = item
+        else:
+            print(f"Invalid mix item: {item}. Skipping.")
+            continue
+
+        obj = bpy.data.objects.get(obj_name)
+        if obj is None:
+            print(f"Object {obj_name} not found. Skipping.")
+            continue
+
+        if obj not in original_values:
+            original_values[obj] = {key.name: key.value for key in obj.data.shape_keys.key_blocks}
+
+        key_block = getKeyBlock(key_name, obj)
+        if key_block is None:
+            if fallback_shapekeys:
+                fallback_key_name = next((fallback for key, fallback, _ in fallback_shapekeys if key == key_name), None)
+                if fallback_key_name:
+                    key_block = getKeyBlock(fallback_key_name, obj)
+                    if key_block:
+                        print(f"Using fallback shape key {fallback_key_name} for {key_name} in {obj.name}")
+                    else:
+                        print(f"Fallback shape key {fallback_key_name} not found in {obj.name}. Skipping.")
+                        continue
+                else:
+                    print(f"No fallback found for shape key {key_name} in {obj.name}. Skipping.")
+                    continue
+            else:
+                print(f"Shape key {key_name} not found in {obj.name} and no fallbacks provided. Skipping.")
+                continue
+
+        key_block.value = value
+
+    # Second pass: calculate and apply the new vertex positions
+    for vert_index in range(len(target_object.data.vertices)):
+        final_co = target_object.data.shape_keys.reference_key.data[vert_index].co.copy()
+        
+        for item in mix:
+            if len(item) == 2:
+                obj_name, key_name = target_object_name, item[0]
+                value = item[1]
+            elif len(item) == 3:
+                obj_name, key_name, value = item
+            else:
+                continue
+
+            obj = bpy.data.objects.get(obj_name)
+            if obj is None:
+                continue
+
+            key_block = getKeyBlock(key_name, obj)
+            if key_block is None:
+                continue
+
+            if obj == target_object:
+                final_co += (key_block.data[vert_index].co - obj.data.shape_keys.reference_key.data[vert_index].co) * value
+            elif vert_index < len(key_block.data):
+                # For other objects, we assume the vertex order is the same
+                final_co += (key_block.data[vert_index].co - obj.data.shape_keys.reference_key.data[vert_index].co) * value
+
+        new_key.data[vert_index].co = final_co
+
+    # Reset shape keys to their original values
+    for obj, values in original_values.items():
+        for key in obj.data.shape_keys.key_blocks:
+            key.value = values.get(key.name, 0)
+
+    new_key.value = 0.0  # Ensure the new shape key's value is set to 0 after creation
+
+    return new_key
+
 
 def GetShapeKey(object_name, shape_name):
     bpy.context.view_layer.objects.active = bpy.data.objects[object_name]

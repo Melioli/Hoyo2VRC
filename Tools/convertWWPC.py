@@ -132,91 +132,63 @@ class ConvertWutheringWavesPlayerCharacter(Operator):
             blender_utils.ChangeMode("OBJECT")
 
         def GenShapekey():
-
-            # Check if 'Face' object exists
+            # Check if 'Body' object exists
             if "Body" not in bpy.data.objects:
                 print("Body object does not exist. Skipping shape key generation.")
                 return
 
-            blender_utils.SelectObject("Body")
-
             # Check if the required shape keys are present
-            required_shape_keys = ["A", "O", "I"]
+            required_shape_keys = {
+                "Body": ["A", "O", "I", "E", "U", "E_Close"]
+            }
             fallback_shapekeys = [
                 ("A", "Aa", 0.75),
             ]
 
             fallback_dict = {key: value for key, value, _ in fallback_shapekeys}
 
-            for i, key in enumerate(required_shape_keys):
-                if shapekey_utils.getKeyBlock(key) is None:
-                    # Check if there is a fallback shape key
-                    if (
-                        key in fallback_dict
-                        and shapekey_utils.getKeyBlock(fallback_dict[key]) is not None
-                    ):
-                        required_shape_keys[i] = fallback_dict[key]
-                        print(
-                            f"Replaced missing shape key {key} with fallback {fallback_dict[key]}"
-                        )
-                    else:
-                        print(
-                            f"Required shape key {key} is not present and no fallback available. Skipping shape key generation."
-                        )
-                        return
+            for obj_name, keys in required_shape_keys.items():
+                obj = bpy.data.objects.get(obj_name)
+                if obj is None:
+                    print(f"Object {obj_name} not found. Skipping its shape keys.")
+                    continue
+
+                for key in keys:
+                    if shapekey_utils.getKeyBlock(key, obj) is None:
+                        if key in fallback_dict and shapekey_utils.getKeyBlock(fallback_dict[key], obj) is not None:
+                            print(f"Replaced missing shape key {key} with fallback {fallback_dict[key]} in {obj_name}")
+                        else:
+                            print(f"Required shape key {key} is not present in {obj_name} and no fallback available.")
 
             # Generate additional shape keys
             shapekey_data = {
-                "A": [("A", 1)],
-                "O": [("O", 1)],
-                "CH": [("E", 0.3), ("I", 1), ("U", 0.05)],
-                "vrc.v_aa": [("A", 0.9998)],
-                "vrc.v_ch": [("CH", 0.9996)],
-                "vrc.v_dd": [("A", 0.3), ("CH", 0.7)],
-                "vrc.v_e": [("CH", 0.7), ("O", 0.3)],
-                "vrc.v_ff": [("A", 0.2), ("CH", 0.4)],
-                "vrc.v_ih": [("A", 0.5), ("CH", 0.2)],
-                "vrc.v_kk": [("A", 0.7), ("CH", 0.4)],
-                "vrc.v_nn": [("A", 0.2), ("CH", 0.7)],
-                "vrc.v_oh": [("A", 0.2), ("O", 0.8)],
-                "vrc.v_ou": [("O", 0.9994)],
-                "vrc.v_pp": [("A", 0.0004), ("O", 0.0004)],
-                "vrc.v_rr": [("CH", 0.5), ("O", 0.3)],
-                "vrc.v_sil": [("A", 0.0002), ("CH", 0.0002)],
-                "vrc.v_ss": [("CH", 0.8)],
-                "vrc.v_th": [("A", 0.4), ("O", 0.15)],
+                "A": [("Body", "A", 1)],
+                "O": [("Body", "O", 1)],
+                "CH": [("Body", "E", 0.3), ("Body", "I", 1), ("Body", "U", 0.05)],
+                "vrc.v_aa": [("Body", "A", 0.9998)],
+                "vrc.v_ch": [("Body", "CH", 0.9996)],
+                "vrc.v_dd": [("Body", "A", 0.3), ("Body", "CH", 0.7)],
+                "vrc.v_e": [("Body", "CH", 0.7), ("Body", "O", 0.3)],
+                "vrc.v_ff": [("Body", "A", 0.2), ("Body", "CH", 0.4)],
+                "vrc.v_ih": [("Body", "A", 0.5), ("Body", "CH", 0.2)],
+                "vrc.v_kk": [("Body", "A", 0.7), ("Body", "CH", 0.4)],
+                "vrc.v_nn": [("Body", "A", 0.2), ("Body", "CH", 0.7)],
+                "vrc.v_oh": [("Body", "A", 0.2), ("Body", "O", 0.8)],
+                "vrc.v_ou": [("Body", "O", 0.9994)],
+                "vrc.v_pp": [("Body", "A", 0.0004), ("Body", "O", 0.0004)],
+                "vrc.v_rr": [("Body", "CH", 0.5), ("Body", "O", 0.3)],
+                "vrc.v_sil": [("Body", "A", 0.0002), ("Body", "CH", 0.0002)],
+                "vrc.v_ss": [("Body", "CH", 0.8)],
+                "vrc.v_th": [("Body", "A", 0.4), ("Body", "O", 0.15)],
+                "Blink": [("Body", "E_Close", 1)],	
             }
 
             for shapekey_name, mix in shapekey_data.items():
-                new_mix = []
-                for key, value in mix:
-                    if shapekey_utils.getKeyBlock(key) is None:
-                        # Look for a fallback shape key
-                        if (
-                            key in fallback_dict
-                            and shapekey_utils.getKeyBlock(fallback_dict[key])
-                            is not None
-                        ):
-                            new_key = fallback_dict[key]
-                            new_mix.append((new_key, value))
-                            print(
-                                f"Replaced missing shape key {key} with fallback {new_key}"
-                            )
-                        else:
-                            print(
-                                f"Skipping shape key {key} due to no fallback available."
-                            )
-                    else:
-                        new_mix.append((key, value))
-
-                if new_mix:
-                    shapekey_utils.GenerateShapeKey(
-                        "Body", shapekey_name, new_mix, fallback_shapekeys
-                    )
-                else:
-                    print(
-                        f"Skipping generation of {shapekey_name} due to missing shape keys."
-                    )
+                try:
+                    shapekey_utils.GenerateShapeKey("Body", shapekey_name, mix, fallback_shapekeys)
+                    print(f"Successfully generated shape key: {shapekey_name}")
+                except Exception as e:
+                    print(f"Error generating shape key {shapekey_name}: {str(e)}")
 
             blender_utils.ChangeMode("OBJECT")
         
@@ -414,7 +386,8 @@ class ConvertWutheringWavesPlayerCharacter(Operator):
             if bpy.context.scene.reconnect_armature:
                 ConnectArmature()
             model_utils.RenameMeshToBody()
-            GenShapekey()
+            if bpy.context.scene.generate_shape_keys:
+                GenShapekey()
             SeparateWuWaEyes("Pupil_Scale")
             CreateEyesBones("Left Eye", "Eye_L")
             CreateEyesBones("Right Eye", "Eye_R")

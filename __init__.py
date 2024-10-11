@@ -21,7 +21,7 @@ from . import settings
 bl_info = {
     "name": "Hoyo2VRC X",
     "author": "Meliodas",
-    "version": (4, 0, 1),
+    "version": (4, 0, 5),
     "blender": (4, 0, 2),
     "location": "3D View > Sidebar > Hoyo2VRC",
     "description": "Convert Hoyoverse and Wuthering Waves models to VRChat usable models.",
@@ -169,6 +169,32 @@ class Hoyo2VRCConversionSettingsPanel(Panel):
             ),
         )
 
+        # Add a row for the "Generate Shape Keys" option
+        row = box.row()
+        row.prop(
+            context.scene,
+            "generate_shape_keys",
+            text="Generate Shape Keys",
+            icon=(
+                "CHECKBOX_HLT"
+                if context.scene.generate_shape_keys
+                else "CHECKBOX_DEHLT"
+            ),
+        )
+
+        # Add a row for the "Keep Star Eye Mesh" option
+        row = box.row()
+        row.prop(
+            context.scene,
+            "keep_star_eye_mesh",
+            text="Keep Star Eye Mesh",
+            icon=(
+                "CHECKBOX_HLT"
+                if context.scene.keep_star_eye_mesh
+                else "CHECKBOX_DEHLT"
+            ),
+        )
+
         # Add a separator for better visual organization
         box.separator()
 
@@ -190,13 +216,11 @@ classes = [
 
 def register():
     settings.register_settings()
-
     for cls in classes:
         bpy.utils.register_class(cls)
 
 
 def unregister():
     settings.unregister_settings()
-
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
