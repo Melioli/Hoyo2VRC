@@ -39,7 +39,7 @@
 
 ## Contact
 
-- [Discord server](https://discord.gg/meliverse)
+- [Discord server](https://discord.gg/hoyotoon)
 - [Meliodas's Twitter](https://twitter.com/Meliodas7DL)
 
 ## Issues
