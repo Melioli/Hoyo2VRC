@@ -10,6 +10,8 @@ import subprocess
 import uuid
 from bpy.props import *
 import bpy_extras
+import re
+from pathlib import Path
 
 
 def is_ill_matrix(matrix):
@@ -1407,6 +1409,7 @@ def parse_color_dic(color_dic, tokens):
     color_dic[key][int(tokens[2])] = [(float(tokens[i]), float(tokens[i+1]), float(tokens[i+2]), float(tokens[i+3])) for i in range(4, len(tokens), 4)]
 
 
+
 def parse_polygon_material_dic(polygon_material_dic, tokens):
     key = int(tokens[1])
     if key not in polygon_material_dic:
@@ -1743,7 +1746,7 @@ class Hoyo2VRCImportFbx(Operator, ImportHelper):
 
     my_calculate_roll: EnumProperty(
             name="Calculate Roll",
-            description="Automatically fix alignment of imported bones’ axes when 'Automatic Bone Orientation' is enabled",
+            description="Automatically fix alignment of imported bones' axes when 'Automatic Bone Orientation' is enabled",
             items=(('POS_X', "POS_X", "POS_X"),
                    ('POS_Z', "POS_Z", "POS_Z"),
                    ('GLOBAL_POS_X', "GLOBAL_POS_X", "GLOBAL_POS_X"),
@@ -1757,7 +1760,7 @@ class Hoyo2VRCImportFbx(Operator, ImportHelper):
                    ('ACTIVE', "ACTIVE", "ACTIVE"),
                    ('VIEW', "VIEW", "VIEW"),
                    ('CURSOR', "CURSOR", "CURSOR"),
-                   ('None', "None", "Does not fix alignment of imported bones’ axes")),
+                   ('None', "None", "Does not fix alignment of imported bones' axes")),
             default='None',
             )
 
@@ -1987,8 +1990,28 @@ class Hoyo2VRCImportFbx(Operator, ImportHelper):
             default='cm',
             )
 
+    def update_bone_settings(self, context):
+        # Get filename without extension
+        if self.filepath:
+            filename = Path(self.filepath).stem
+            
+            # Genshin Impact model pattern
+            gi_pattern = r"^(Cs_Avatar|Avatar|NPC_Avatar)_(Boy|Girl|Lady|Male|Loli)_(Sword|Claymore|Bow|Catalyst|Pole)_([a-zA-Z]+)(?<!_\d{2})$"
+            
+            if re.match(gi_pattern, filename):
+                # Force settings for Genshin models
+                self.use_auto_bone_orientation = False
+                self.primary_bone_axis = 'X'
+                self.secondary_bone_axis = 'Y'
+            else:
+                # Default settings for other models
+                self.use_auto_bone_orientation = True
+
     def draw(self, context):
         layout = self.layout
+        
+        # Update settings based on filename
+        self.update_bone_settings(context)
 
         box = layout.box()
         box.label(text="Basic Options:")
@@ -2012,16 +2035,28 @@ class Hoyo2VRCImportFbx(Operator, ImportHelper):
 
         box = layout.box()
         box.label(text="Bone Options:")
-        box.prop(self, 'use_auto_bone_orientation')
+        
+        # Get filename for checking
+        filename = Path(self.filepath).stem if self.filepath else ""
+        gi_pattern = r"^(Cs_Avatar|Avatar|NPC_Avatar)_(Boy|Girl|Lady|Male|Loli)_(Sword|Claymore|Bow|Catalyst|Pole)_([a-zA-Z]+)(?<!_\d{2})$"
+        is_genshin = bool(re.match(gi_pattern, filename))
+        
+        row = box.row()
+        row.prop(self, 'use_auto_bone_orientation')
+        row.enabled = not is_genshin
+        
         row = box.row()
         row.prop(self, 'primary_bone_axis')
         row.enabled = not self.use_auto_bone_orientation
+        
         row = box.row()
         row.prop(self, 'secondary_bone_axis')
         row.enabled = not self.use_auto_bone_orientation
+        
         row = box.row()
         row.prop(self, 'my_calculate_roll')
-        row.enabled = self.use_auto_bone_orientation
+        row.enabled = self.use_auto_bone_orientation and not is_genshin
+        
         box.prop(self, 'my_bone_length')
         box.prop(self, 'my_leaf_bone')
         box.prop(self, 'use_detect_deform_bone')
