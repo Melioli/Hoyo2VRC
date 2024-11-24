@@ -1997,8 +1997,10 @@ class Hoyo2VRCImportFbx(Operator, ImportHelper):
             
             # Genshin Impact model pattern
             gi_pattern = r"^(Cs_Avatar|Avatar|NPC_Avatar)_(Boy|Girl|Lady|Male|Loli)_(Sword|Claymore|Bow|Catalyst|Pole)_([a-zA-Z]+)(?<!_\d{2})$"
-            
-            if re.match(gi_pattern, filename):
+            # Honkai Impact 3rd model pattern
+            hi3_pattern = r"^(Avatar|Assister)_\w+?_C\d+(_\w+)$"
+
+            if re.match(gi_pattern, filename) or re.match(hi3_pattern, filename):
                 # Force settings for Genshin models
                 self.use_auto_bone_orientation = False
                 self.primary_bone_axis = 'X'
@@ -2039,11 +2041,13 @@ class Hoyo2VRCImportFbx(Operator, ImportHelper):
         # Get filename for checking
         filename = Path(self.filepath).stem if self.filepath else ""
         gi_pattern = r"^(Cs_Avatar|Avatar|NPC_Avatar)_(Boy|Girl|Lady|Male|Loli)_(Sword|Claymore|Bow|Catalyst|Pole)_([a-zA-Z]+)(?<!_\d{2})$"
+        hi3_pattern = r"^(Avatar|Assister)_\w+?_C\d+(_\w+)$"
         is_genshin = bool(re.match(gi_pattern, filename))
+        is_hi3 = bool(re.match(hi3_pattern, filename))
         
         row = box.row()
         row.prop(self, 'use_auto_bone_orientation')
-        row.enabled = not is_genshin
+        row.enabled = not is_genshin and not is_hi3
         
         row = box.row()
         row.prop(self, 'primary_bone_axis')

@@ -44,10 +44,17 @@ class Hoyo2VRCExport(Operator):
 
         bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
-        armature = [object for object in bpy.data.objects if object.type == "ARMATURE"][
-            0
-        ]  # expecting 1 armature
-        armature.select_set(True)
+        # First try to find an armature
+        armatures = [obj for obj in bpy.data.objects if obj.type == "ARMATURE"]
+        if armatures:
+            armature = armatures[0]
+        else:
+            # If no armature, get highest level mesh
+            armature = next((obj for obj in bpy.data.objects 
+                           if obj.type == "MESH" and obj.parent is None), None)
+        
+        if armature:
+            armature.select_set(True)
 
         # Select all objects
         bpy.ops.object.select_all(action="SELECT")
