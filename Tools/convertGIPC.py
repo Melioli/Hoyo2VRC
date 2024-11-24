@@ -87,9 +87,10 @@ class ConvertGenshinPlayerCharacter(Operator):
                 armature_utils.FixSpine(spine, hips, x_cord, y_cord, z_cord)
                 armature_utils.FixChest(chest, spine, x_cord, y_cord, z_cord)
                 armature_utils.FixUpperChest(upperchest, chest, x_cord, y_cord, z_cord)
-                armature_utils.AdjustLegs(
-                    left_leg, right_leg, left_knee, right_knee, y_cord
-                )
+                if context.scene.fbt_leg_fixes:
+                    armature_utils.AdjustLegs(
+                        left_leg, right_leg, left_knee, right_knee, y_cord
+                    )
                 armature_utils.StraightenHead(armature, head, x_cord, y_cord, z_cord)
                 armature_utils.FixMissingNeck(
                     armature, chest, head, x_cord, y_cord, z_cord
@@ -103,6 +104,12 @@ class ConvertGenshinPlayerCharacter(Operator):
             # Attach feet to the corresponding bones
             bone_pairs = [
                 # ("PelvisTwistCFA01", "Hips"),
+                ("Left ankle", "Left toe"),
+                ("Right ankle", "Right toe"),
+                ("Left knee", "Left ankle"),
+                ("Right knee", "Right ankle"),
+                ("Left leg", "Left knee"),
+                ("Right leg", "Right knee"),
                 ("Left shoulder", "Left arm"),
                 ("Right shoulder", "Right arm"),
                 ("Left elbow", "Left wrist"),
@@ -216,8 +223,8 @@ class ConvertGenshinPlayerCharacter(Operator):
             blender_utils.ChangeMode("EDIT")
             bpy.ops.armature.select_all(action="DESELECT")
 
-            for eye_bone_name in ["+EyeBoneLA02", "+EyeBoneRA02"]:
-                armature_utils.MoveEyes(armature, eye_bone_name, BlenderVersion)
+            for eye_bone_name in ["Eye_L", "Eye_R"]:
+                armature_utils.MoveEyes(armature, eye_bone_name, BlenderVersion, eye_offset=0.025)
 
             bpy.ops.armature.select_all(action="DESELECT")
 
