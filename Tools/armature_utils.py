@@ -1,5 +1,7 @@
 import bpy
 import re
+import math
+import mathutils
 
 
 def StripName(name):
@@ -117,6 +119,8 @@ def GetGameData(game):
                 "all": "All",
                 "finger": "Finger",
                 "part": "Part",
+                "+EyeBoneLA02": "Eye_L",
+                "+EyeBoneRA02": "Eye_R",
             },
         }
     elif game == "Honkai Star Rail":
@@ -514,33 +518,43 @@ def GetGameData(game):
                 "LFinger0": "Thumb1_L",
                 "LFinger01": "Thumb2_L",
                 "LFinger02": "Thumb3_L",
+                "LFinger03": "Thumb4_L",
                 "LFinger1": "IndexFinger1_L",
                 "LFinger11": "IndexFinger2_L",
                 "LFinger12": "IndexFinger3_L",
+                "LFinger13": "IndexFinger4_L",
                 "LFinger2": "MiddleFinger1_L",
                 "LFinger21": "MiddleFinger2_L",
                 "LFinger22": "MiddleFinger3_L",
+                "LFinger23": "MiddleFinger4_L",
                 "LFinger3": "RingFinger1_L",
                 "LFinger31": "RingFinger2_L",
                 "LFinger32": "RingFinger3_L",
+                "LFinger33": "RingFinger4_L",
                 "LFinger4": "LittleFinger1_L",
                 "LFinger41": "LittleFinger2_L",
                 "LFinger42": "LittleFinger3_L",
+                "LFinger43": "LittleFinger4_L",
                 "RFinger0": "Thumb1_R",
                 "RFinger01": "Thumb2_R",
                 "RFinger02": "Thumb3_R",
+                "RFinger03": "Thumb4_R",
                 "RFinger1": "IndexFinger1_R",
                 "RFinger11": "IndexFinger2_R",
                 "RFinger12": "IndexFinger3_R",
+                "RFinger13": "IndexFinger4_R",
                 "RFinger2": "MiddleFinger1_R",
                 "RFinger21": "MiddleFinger2_R",
                 "RFinger22": "MiddleFinger3_R",
+                "RFinger23": "MiddleFinger4_R",
                 "RFinger3": "RingFinger1_R",
                 "RFinger31": "RingFinger2_R",
                 "RFinger32": "RingFinger3_R",
+                "RFinger33": "RingFinger4_R",
                 "RFinger4": "LittleFinger1_R",
                 "RFinger41": "LittleFinger2_R",
                 "RFinger42": "LittleFinger3_R",
+                "RFinger43": "LittleFinger4_R",
                 "Root_M": "Hips",
                 "Hip_L": "Left leg",
                 "Hip_R": "Right leg",
@@ -606,6 +620,119 @@ def GetGameData(game):
                 "_Ri": "_R",
                 "_": "",
                 "_End": "",
+            },
+            "replaces": {
+                " ": "_",
+                "-": "_",
+                ".": "_",
+                ":": "_",
+                "____": "_",
+                "___": "_",
+                "__": "_",
+                "_Le_": "_L_",
+                "_l": "_L",
+                "_Ri_": "_R_",
+                "_r": "_R",
+                "_m": "_M",
+                "LEFT": "Left",
+                "RIGHT": "Right",
+                "all": "All",
+                "finger": "Finger",
+                "part": "Part",
+            },
+        }
+    elif game == "Zenless Zone Zero":
+        return {
+            "bone_names": {
+                "Pelvis": "Hips",
+                "LThigh": "Left leg",
+                "RThigh": "Right leg",
+                "LCalf": "Left knee",
+                "RCalf": "Right knee",
+                "LFoot": "Left ankle",
+                "RFoot": "Right ankle",
+                "LToe0": "Left toe",
+                "RToe0": "Right toe",
+                "LClavicle": "Left shoulder",
+                "RClavicle": "Right shoulder",
+                "LUpperArm": "Left arm",
+                "RUpperArm": "Right arm",
+                "LForearm": "Left elbow",
+                "RForearm": "Right elbow",
+                "LHand": "Left wrist",
+                "RHand": "Right wrist",
+                "LFinger0": "Thumb1_L",
+                "LFinger01": "Thumb2_L",
+                "LFinger02": "Thumb3_L",
+                "LFinger03": "Thumb4_L",
+                "LFinger1": "IndexFinger1_L",
+                "LFinger11": "IndexFinger2_L",
+                "LFinger12": "IndexFinger3_L",
+                "LFinger13": "IndexFinger4_L",
+                "LFinger2": "MiddleFinger1_L",
+                "LFinger21": "MiddleFinger2_L",
+                "LFinger22": "MiddleFinger3_L",
+                "LFinger23": "MiddleFinger4_L",
+                "LFinger3": "RingFinger1_L",
+                "LFinger31": "RingFinger2_L",
+                "LFinger32": "RingFinger3_L",
+                "LFinger33": "RingFinger4_L",
+                "LFinger4": "LittleFinger1_L",
+                "LFinger41": "LittleFinger2_L",
+                "LFinger42": "LittleFinger3_L",
+                "LFinger43": "LittleFinger4_L",
+                "RFinger0": "Thumb1_R",
+                "RFinger01": "Thumb2_R",
+                "RFinger02": "Thumb3_R",
+                "RFinger03": "Thumb4_R",
+                "RFinger1": "IndexFinger1_R",
+                "RFinger11": "IndexFinger2_R",
+                "RFinger12": "IndexFinger3_R",
+                "RFinger13": "IndexFinger4_R",
+                "RFinger2": "MiddleFinger1_R",
+                "RFinger21": "MiddleFinger2_R",
+                "RFinger22": "MiddleFinger3_R",
+                "RFinger23": "MiddleFinger4_R",
+                "RFinger3": "RingFinger1_R",
+                "RFinger31": "RingFinger2_R",
+                "RFinger32": "RingFinger3_R",
+                "RFinger4": "LittleFinger1_R",
+                "RFinger41": "LittleFinger2_R",
+                "RFinger42": "LittleFinger3_R",
+                "RFinger43": "LittleFinger4_R",
+            },
+            "starts_with": {
+                "_": "",
+                "ValveBiped_": "",
+                "Valvebiped_": "",
+                "Bip1_": "Bip_",
+                "Bip01_": "Bip_",
+                "Bip01": "",
+                "Bip001": "",
+                "Bip02_": "Bip_",
+                "Character1_": "",
+                "HLP_": "",
+                "JD_": "",
+                "JU_": "",
+                "Armature|": "",
+                "Bone_": "",
+                "C_": "",
+                "Cf_S_": "",
+                "Cf_J_": "",
+                "G_": "",
+                "Joint_": "",
+                "Def_C_": "",
+                "Def_": "",
+                "DEF_": "",
+                "Chr_": "",
+                "B_": "",
+            },
+            "ends_with": {
+                "_Bone": "",
+                "_Bn": "",
+                "_Le": "_L",
+                "_Ri": "_R",
+                "_": "",
             },
             "replaces": {
                 " ": "_",
@@ -922,7 +1049,6 @@ def AdjustLegs(left_leg, right_leg, left_knee, right_knee, y_cord):
     right_leg.tail[y_cord] += -0.015
     right_knee.head[y_cord] += -0.015
 
-
 def StraightenHead(armature, head, x_cord, y_cord, z_cord):
     if "Head" in armature.data.edit_bones:
         head = armature.data.edit_bones.get("Head")
@@ -1012,14 +1138,14 @@ def ToggleArmatureSelection(armature, select=True):
         bone.select = select
 
 
-def MoveEyes(armature, eye_bone_name, BlenderVersion):
+def MoveEyes(armature, eye_bone_name, BlenderVersion, eye_offset = 0):
     if eye_bone_name not in armature.data.edit_bones:
         return
 
     attacheyes(armature, eye_bone_name, "Head")
     MoveBone(armature, armature.data.edit_bones[eye_bone_name])
     translate_params = {
-        "value": (0, 0.025, 0),
+        "value": (0, eye_offset, 0),
         "orient_type": "GLOBAL",
         "orient_matrix": ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
         "orient_matrix_type": "GLOBAL",

@@ -11,7 +11,7 @@ def IdentifyModel(name):
         .replace("_Render", "")
         .replace("_merge", "")
         .replace(" (merge)", "")
-        .replace("_Edit", " ")
+        .replace("_Edit", "")
     )
 
     game = None
@@ -26,6 +26,11 @@ def IdentifyModel(name):
             2,
             4,
         ),
+        # Genshin Weapon
+        (r"^(?:Equip_(?:Sword|Bow|Claymore|Catalyst|Pole)_[a-zA-Z0-9_]+|CS_Item_(?:Sword|Bow|Claymore|Catalyst|Pole)_[a-zA-Z0-9]+|.*ControllerBone)$",
+         "Genshin Weapon", 
+         None, 
+         None),
         # Honkai Star Rail Playable Character
         (
             r"^(Player|Avatar|Art|NPC_Avatar)_([a-zA-Z]+)_?(?<!_\d{2})\d{2}$",
@@ -37,8 +42,10 @@ def IdentifyModel(name):
         (r"^(Avatar|Assister)_\w+?_C\d+(_\w+)$", "Honkai Impact", None, 1),
         # Wuthering Waves Playable Character
         (r"^(R2T1\w+|NH\w+)$", "Wuthering Waves", None, 1),
+        # Zenless Zone Zero Playable Character
+        (r"^(Avatar)_(Female|Male)_Size\d{2}_(\w+)(?:_UI)?$", "Zenless Zone Zero", 2, 3),
         # Converted Model
-        (r"^(Armature)$", "Converted", None, 1),
+        (r"^(Armature|Weapon)$", "Converted", None, 1),
     ]
 
     for pattern, game_name, body_type_group, model_name_group in patterns:
@@ -60,9 +67,17 @@ def IdentifyModel(name):
     return game, body_type, model_name
 
 def IsValidModel(obj):
-    # Check if the object is an armature
-    return obj.type == "ARMATURE"
-
+    # First try to find an armature in the scene
+    armature = next((obj for obj in bpy.context.scene.objects if obj.type == "ARMATURE"), None)
+    if armature:
+        return obj == armature
+    
+    # If no armature found, then check for valid mesh
+    if obj.type == "MESH" and (obj.parent is None or obj.parent.type != "MESH"):
+        return True
+        
+    return False
+    
 def GetOrientations(armature):
     x_cord = 0
     y_cord = 1
@@ -91,8 +106,25 @@ def ScaleModel():
             ob.select_set(False)
 
 def RemoveEmpties():
+    # List of prop target names to preserve when keep_prop_targets is enabled
+    prop_targets = {
+        "PRIVATE_Pendant",
+        "PRIVATE_RHand",
+        "PRIVATE_LHand",
+        "PRIVATE_WeaponRootSword",
+        "PRIVATE_ChestKatana",
+        "CatalystL",
+        "CatalystR",
+        "WeaponL",
+        "WeaponR"
+    }
+
     for ob in bpy.context.scene.objects:
         if ob.type == "EMPTY":
+            # If keep_prop_targets is enabled and the empty is in our prop_targets list, skip it
+            if bpy.context.scene.keep_prop_targets and ob.name in prop_targets:
+                continue
+            
             ob.select_set(True)
             Empties = ob
             bpy.data.objects.remove(Empties, do_unlink=True)
@@ -111,6 +143,7 @@ def CleanMeshes():
                 obj.name in ["EffectMesh", "Weapon_L", "Weapon_R"]
                 or "lod" in obj.name.lower()
                 or "AO_Bip" in obj.name
+                or obj.name.endswith("_Low")
             )
             
             # Check if we should keep the EyeStar mesh
@@ -342,3 +375,18 @@ def CalculateEyeCenters():
         eye_centers[eye_name] = eye_center
 
     return eye_centers
+
+def FinalName(new_name):
+    # Find the object with no parent (top of hierarchy)
+    root_objects = [obj for obj in bpy.data.objects if not obj.parent]
+    
+    # If no objects found, return
+    if not root_objects:
+        return
+        
+    # Get the first root object (highest in hierarchy)
+    highest_obj = root_objects[0]
+    
+    # Rename the object
+    highest_obj.name = new_name
+
