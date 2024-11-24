@@ -10,10 +10,12 @@ from .Tools import (
     exporter,
     hoyofbx,
     convertGIPC,
+    convertGIW,
     convertHSRPC,
     convertHI3PC,
     convertNPC,
     convertWWPC,
+    convertZZZ,
 )
 from . import settings
 
@@ -21,7 +23,7 @@ from . import settings
 bl_info = {
     "name": "Hoyo2VRC X",
     "author": "Meliodas",
-    "version": (4, 0, 5),
+    "version": (4, 5, 0),
     "blender": (4, 0, 2),
     "location": "3D View > Sidebar > Hoyo2VRC",
     "description": "Convert Hoyoverse and Wuthering Waves models to VRChat usable models.",
@@ -84,9 +86,11 @@ class Hoyo2VRCModelPanel(Panel):
             # Define a dictionary to map game names to operator functions and display texts
             games = {
                 "Genshin Impact": ("hoyo2vrc.convertgpc", "Convert GI Avatar"),
+                "Genshin Weapon": ("hoyo2vrc.convertgiw", "Convert GI Weapon"),
                 "Honkai Star Rail": ("hoyo2vrc.converthsrpc", "Convert HSR Avatar"),
                 "Honkai Impact": ("hoyo2vrc.converthi3pc", "Convert HI3 Avatar"),
                 "Wuthering Waves": ("hoyo2vrc.convertwuwa", "Convert WuWa Avatar"),
+                #"Zenless Zone Zero": ("hoyo2vrc.convertzzz", "Convert ZZZ Avatar"),
                 # "NPC": ("hoyo2vrc.convertnpc", "Convert NPC"),
             }
 
@@ -169,6 +173,19 @@ class Hoyo2VRCConversionSettingsPanel(Panel):
             ),
         )
 
+        # Add after humanoid_armature_fix option
+        row = box.row()
+        row.prop(
+            context.scene,
+            "fbt_leg_fixes",
+            text="FBT Leg Fixes",
+            icon=(
+                "CHECKBOX_HLT"
+                if context.scene.fbt_leg_fixes
+                else "CHECKBOX_DEHLT"
+            ),
+        )
+
         # Add a row for the "Generate Shape Keys" option
         row = box.row()
         row.prop(
@@ -201,10 +218,12 @@ class Hoyo2VRCConversionSettingsPanel(Panel):
 
 classes = [
     convertGIPC.ConvertGenshinPlayerCharacter,
+    convertGIW.ConvertGenshinWeapon,
     convertHI3PC.ConvertHonkaiImpactPlayerCharacter,
     convertHSRPC.ConvertHonkaiStarRailPlayerCharacter,
     convertNPC.ConvertNonePlayerCharacter,
     convertWWPC.ConvertWutheringWavesPlayerCharacter,
+    convertZZZ.ConvertZenlessZoneZeroPlayerCharacter,
     importer.Hoyo2VRCImportFbx,
     exporter.Hoyo2VRCExportFbx,
     hoyofbx.Hoyo2VRCImport,
