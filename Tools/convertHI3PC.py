@@ -167,7 +167,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             bpy.ops.armature.select_all(action="DESELECT")
 
             for eye_bone_name in ["Eye_L", "Eye_R"]:
-                armature_utils.MoveEyes(armature, eye_bone_name, BlenderVersion)
+                armature_utils.MoveEyes(armature, eye_bone_name, BlenderVersion, eye_offset=0.025)
 
             bpy.ops.armature.select_all(action="DESELECT")
 
@@ -179,6 +179,8 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             bone_pairs = [
                 ("Left knee", "Left ankle"),
                 ("Right knee", "Right ankle"),
+                ("Right ankle", "Right toe"),
+                ("Left ankle", "Left toe"),
                 ("Right shoulder", "Right arm"),
                 ("Left shoulder", "Left arm"),
                 ("Left leg", "Left knee"),
@@ -261,6 +263,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
             armature_utils.CleanBones()
             armature_utils.RenameBones(game, armature)
             SetupArmature()
+            FixEyes()
             if bpy.context.scene.reconnect_armature:
                 ConnectArmature()
             if bpy.context.scene.generate_shape_keys:
