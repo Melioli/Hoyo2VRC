@@ -37,6 +37,11 @@ settings = {
         description="Toggle to keep the Star Eye mesh during model conversion.",
         default=False,
     ),
+    "fbt_leg_fixes": bpy.props.BoolProperty(
+        name="FBT Leg Fixes",
+        description="Apply Full Body Tracking leg fixes (adjusts leg bone positions for better tracking)",
+        default=False,
+    ),
 }
 
 
