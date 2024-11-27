@@ -376,9 +376,52 @@ class ConvertWutheringWavesPlayerCharacter(Operator):
             
             # Deselect all objects
             bpy.ops.object.select_all(action='DESELECT')
+
+        def FixFingers():
+            # Make sure armature is selected and active
+            bpy.context.view_layer.objects.active = armature
+            armature.select_set(True)
             
+            # Enter edit mode first
+            blender_utils.ChangeMode("EDIT")
+            print("\nStarting finger renaming process...")
             
-        
+            # Rename thumb bones
+            for side in ["L", "R"]:
+                thumb1 = armature.data.edit_bones.get(f"Thumb1_{side}")
+                thumb4 = armature.data.edit_bones.get(f"Thumb4_{side}")
+                if thumb1 and thumb4:
+                    print(f"Renaming {thumb1.name} to Thumb_{side}")
+                    thumb1.name = f"Thumb_{side}"
+                    # Rename remaining bones up the chain
+                    for i in range(2, 5):
+                        old_name = f"Thumb{i}_{side}"
+                        new_name = f"Thumb{i-1}_{side}"
+                        if bone := armature.data.edit_bones.get(old_name):
+                            print(f"Renaming {old_name} to {new_name}")
+                            bone.name = new_name
+            
+            # Rename finger bones
+            finger_types = ["Index", "Middle", "Ring", "Little"]
+            for finger in finger_types:
+                for side in ["L", "R"]:
+                    finger1 = armature.data.edit_bones.get(f"{finger}Finger1_{side}")
+                    finger4 = armature.data.edit_bones.get(f"{finger}Finger4_{side}")
+                    if finger1 and finger4:
+                        print(f"Renaming {finger1.name} to Bone_{side}")
+                        finger1.name = f"Bone_{side}"
+                        # Rename remaining bones up the chain
+                        for i in range(2, 5):
+                            old_name = f"{finger}Finger{i}_{side}"
+                            new_name = f"{finger}Finger{i-1}_{side}"
+                            if bone := armature.data.edit_bones.get(old_name):
+                                print(f"Renaming {old_name} to {new_name}")
+                                bone.name = new_name
+            
+            print("\nFinger renaming completed")
+            # Return to object mode
+            blender_utils.ChangeMode("OBJECT")
+
         def Run():
             armature_utils.RenameBones(game, armature)
             armature_utils.CleanBones()
@@ -392,6 +435,7 @@ class ConvertWutheringWavesPlayerCharacter(Operator):
             CreateEyesBones("Left Eye", "Eye_L")
             CreateEyesBones("Right Eye", "Eye_R")
             MergeEyes()
+            FixFingers()
             blender_utils.ResetCursor()
 
 

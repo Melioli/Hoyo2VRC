@@ -1180,3 +1180,29 @@ def ReparentBone(armature, bone_name, parent_name):
         bone.parent = parent_bone
     else:
         print(f"Could not find bone {bone_name} or parent bone {parent_name}")
+
+
+def MergeBones(armature, bone_to_merge, parent_bone):
+    """
+    Merges a bone into its parent by connecting the parent to the child's children
+    
+    Args:
+        armature: The armature object
+        bone_to_merge: Name of the bone to be merged
+        parent_bone: Name of the parent bone to merge into
+    """
+    if bone_to_merge not in armature.data.edit_bones or parent_bone not in armature.data.edit_bones:
+        return
+    
+    bone = armature.data.edit_bones[bone_to_merge]
+    parent = armature.data.edit_bones[parent_bone]
+    
+    # Store children of the bone to be merged
+    children = [child for child in bone.children]
+    
+    # Reparent all children to the parent bone
+    for child in children:
+        child.parent = parent
+    
+    # Remove the merged bone
+    armature.data.edit_bones.remove(bone)
