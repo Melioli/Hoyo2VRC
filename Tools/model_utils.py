@@ -106,25 +106,8 @@ def ScaleModel():
             ob.select_set(False)
 
 def RemoveEmpties():
-    # List of prop target names to preserve when keep_prop_targets is enabled
-    prop_targets = {
-        "PRIVATE_Pendant",
-        "PRIVATE_RHand",
-        "PRIVATE_LHand",
-        "PRIVATE_WeaponRootSword",
-        "PRIVATE_ChestKatana",
-        "CatalystL",
-        "CatalystR",
-        "WeaponL",
-        "WeaponR"
-    }
-
     for ob in bpy.context.scene.objects:
         if ob.type == "EMPTY":
-            # If keep_prop_targets is enabled and the empty is in our prop_targets list, skip it
-            if bpy.context.scene.keep_prop_targets and ob.name in prop_targets:
-                continue
-            
             ob.select_set(True)
             Empties = ob
             bpy.data.objects.remove(Empties, do_unlink=True)
