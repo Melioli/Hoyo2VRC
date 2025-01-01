@@ -243,6 +243,7 @@ class ConvertZenlessZoneZeroPlayerCharacter(Operator):
             if bpy.context.scene.generate_shape_keys:
                 GenShapekey()
             FixEyes()
+            model_utils.ReorderUVMaps()
             model_utils.MergeMeshes()
 
         Run()

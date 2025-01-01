@@ -257,13 +257,12 @@ class ConvertNonePlayerCharacter(Operator):
             if bpy.context.scene.generate_shape_keys:
                 GenShapekey()
             model_utils.MergeFaceByDistance("Face", ["Face_Eye", "Brow"], "A")
+            model_utils.ReorderUVMaps()
             model_utils.MergeMeshes()
 
             Run()
 
             return {"FINISHED"}
-
-            model_utils.MergeMeshes()
 
         Run()
 

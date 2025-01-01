@@ -156,6 +156,7 @@ class ConvertHonkaiStarRailPlayerCharacter(Operator):
             if bpy.context.scene.reconnect_armature:
                 ConnectArmature()
             FixEyes()
+            model_utils.ReorderUVMaps()
             model_utils.MergeMeshes()
 
         Run()

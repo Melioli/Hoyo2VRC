@@ -272,6 +272,7 @@ class ConvertHonkaiImpactPlayerCharacter(Operator):
                 model_utils.MergeFaceByDistance("Face", ["EyeShape", "Eyebrow"], "A")
             else:
                 model_utils.MergeFaceByDistance("Face", ["EyeShape", "Eyebrow"], "Mouth_A01")
+            model_utils.ReorderUVMaps()
             model_utils.MergeMeshes()
 
         Run()

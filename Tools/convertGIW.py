@@ -34,6 +34,7 @@ class ConvertGenshinWeapon(Operator):
             model_utils.RemoveEmpties()
             model_utils.ClearRotations()
             model_utils.CleanMeshes()
+            model_utils.ReorderUVMaps()
             model_utils.MergeMeshes()
             model_utils.FinalName("Weapon")
 

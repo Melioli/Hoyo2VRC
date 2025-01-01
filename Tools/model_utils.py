@@ -373,3 +373,38 @@ def FinalName(new_name):
     # Rename the object
     highest_obj.name = new_name
 
+def ReorderUVMaps():
+    # Get all mesh objects
+    mesh_objects = [obj for obj in bpy.data.objects if obj.type == 'MESH']
+    
+    for obj in mesh_objects:
+        mesh = obj.data
+        if len(mesh.uv_layers) <= 1:
+            continue
+            
+        # Get current UV layers and their names
+        uv_layers = [(i, layer.name) for i, layer in enumerate(mesh.uv_layers)]
+        
+        # Sort UV layers by name
+        sorted_layers = sorted(uv_layers, key=lambda x: x[1])
+        
+        # Check if reordering is needed
+        if [i for i, _ in uv_layers] != [i for i, _ in sorted_layers]:
+            # Create a copy of UV data in the new order
+            uv_data = {}
+            for old_idx, name in sorted_layers:
+                uv_data[name] = {
+                    'data': [uvloop.uv[:] for uvloop in mesh.uv_layers[old_idx].data]
+                }
+            
+            # Remove all UV layers except the first one
+            while len(mesh.uv_layers) > 1:
+                mesh.uv_layers.remove(mesh.uv_layers[-1])
+            
+            # Recreate UV layers in the correct order
+            for name, data in uv_data.items():
+                if name != mesh.uv_layers[0].name:
+                    new_layer = mesh.uv_layers.new(name=name)
+                    for loop_idx, uv in enumerate(data['data']):
+                        new_layer.data[loop_idx].uv = uv
+

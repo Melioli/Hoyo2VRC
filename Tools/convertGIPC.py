@@ -249,6 +249,7 @@ class ConvertGenshinPlayerCharacter(Operator):
                 model_utils.MergeFaceByDistance("Face", ["Face_Eye", "Brow"], "A")
             else:
                 model_utils.MergeFaceByDistance("Face", ["Face_Eye", "Brow"], "Mouth_A01")
+            model_utils.ReorderUVMaps()
             model_utils.MergeMeshes()
 
         Run()
