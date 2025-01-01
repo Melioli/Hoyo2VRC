@@ -21,7 +21,7 @@ def IdentifyModel(name):
     patterns = [
         # Genshin Impact Playable character
         (
-            r"^(Cs_Avatar|Avatar|NPC_Avatar)_(Boy|Girl|Lady|Male|Loli)_(Sword|Claymore|Bow|Catalyst|Pole)_([a-zA-Z]+)(?<!_\d{2})$",
+            r"^(Cs_Avatar|Avatar|NPC_Avatar)_(Boy|Girl|Lady|Male|Loli)_(Sword|Claymore|Bow|Catalyst|Pole|Undefined)_([a-zA-Z]+)(?<!_\d{2})$",
             "Genshin Impact",
             2,
             4,
