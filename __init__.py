@@ -23,7 +23,7 @@ from . import settings
 bl_info = {
     "name": "Hoyo2VRC X",
     "author": "Meliodas",
-    "version": (4, 5, 0),
+    "version": (4, 5, 1),
     "blender": (4, 0, 2),
     "location": "3D View > Sidebar > Hoyo2VRC",
     "description": "Convert Hoyoverse and Wuthering Waves models to VRChat usable models.",
