@@ -27,7 +27,7 @@ def IdentifyModel(name):
             4,
         ),
         # Genshin Weapon
-        (r"^(?:Equip_(?:Sword|Bow|Claymore|Catalyst|Pole)_[a-zA-Z0-9_]+|CS_Item_(?:Sword|Bow|Claymore|Catalyst|Pole)_[a-zA-Z0-9]+|.*ControllerBone)$",
+        (r"^(?:Equip_(?:Sword|Bow|Claymore|Catalyst|Pole)_[a-zA-Z0-9_]+|CS_Item_(?:Sword|Bow|Claymore|Catalyst|Pole)_[a-zA-Z0-9]+|NPC_Item_[a-zA-Z0-9_]+|.*ControllerBone)$",
          "Genshin Weapon", 
          None, 
          None),
