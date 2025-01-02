@@ -1717,10 +1717,13 @@ class Hoyo2VRCImportFbx(Operator, ImportHelper):
     bl_label = "Hoyo Import FBX"
     bl_options = {'UNDO', 'PRESET'}
 
+    # Define regex patterns as class variables
+    GI_PATTERN = r"^(Cs_Avatar|Avatar|NPC_Avatar)_(Boy|Girl|Lady|Male|Loli)_(Sword|Claymore|Bow|Catalyst|Pole|Undefined)_([a-zA-Z]+)(?<!_\d{2})$"
+    HI3_PATTERN = r"^(Avatar|Assister)_\w+?_C\d+(_\w+)$"
+
     @classmethod
     def poll(self, context):
         return context.mode == 'OBJECT'
-
 
     # ImportHelper mixin class uses this
     filename_ext = ".fbx"
@@ -1995,12 +1998,7 @@ class Hoyo2VRCImportFbx(Operator, ImportHelper):
         if self.filepath:
             filename = Path(self.filepath).stem
             
-            # Genshin Impact model pattern
-            gi_pattern = r"^(Cs_Avatar|Avatar|NPC_Avatar)_(Boy|Girl|Lady|Male|Loli)_(Sword|Claymore|Bow|Catalyst|Pole)_([a-zA-Z]+)(?<!_\d{2})$"
-            # Honkai Impact 3rd model pattern
-            hi3_pattern = r"^(Avatar|Assister)_\w+?_C\d+(_\w+)$"
-
-            if re.match(gi_pattern, filename) or re.match(hi3_pattern, filename):
+            if re.match(self.GI_PATTERN, filename) or re.match(self.HI3_PATTERN, filename):
                 # Force settings for Genshin models
                 self.use_auto_bone_orientation = False
                 self.primary_bone_axis = 'X'
@@ -2040,10 +2038,8 @@ class Hoyo2VRCImportFbx(Operator, ImportHelper):
         
         # Get filename for checking
         filename = Path(self.filepath).stem if self.filepath else ""
-        gi_pattern = r"^(Cs_Avatar|Avatar|NPC_Avatar)_(Boy|Girl|Lady|Male|Loli)_(Sword|Claymore|Bow|Catalyst|Pole)_([a-zA-Z]+)(?<!_\d{2})$"
-        hi3_pattern = r"^(Avatar|Assister)_\w+?_C\d+(_\w+)$"
-        is_genshin = bool(re.match(gi_pattern, filename))
-        is_hi3 = bool(re.match(hi3_pattern, filename))
+        is_genshin = bool(re.match(self.GI_PATTERN, filename))
+        is_hi3 = bool(re.match(self.HI3_PATTERN, filename))
         
         row = box.row()
         row.prop(self, 'use_auto_bone_orientation')
